@@ -1,3 +1,4 @@
+import {sourceReference} from './collection.js';
 const forms=new Set(['collection-form','environment-form','catch-form','batch-form','sources']);
 const copy=context=>context?{scopeHash:context.scopeHash,orderId:context.orderId??null,revision:context.revision??null,siteId:context.siteId??null,deviceId:context.deviceId??null}:null;
 const key=context=>JSON.stringify(copy(context));
@@ -14,3 +15,6 @@ export function createCollectionInputGuard(){
   clear(){owner=null;review=false;dirty.clear();sequence++;},
  };
 }
+
+// Site additions and provenance changes must participate in the same review fence.
+export function inputMetadataKey(devices,events,sites=[]){return JSON.stringify([devices.map(device=>[device.deviceId,device.siteId,device.enabled]),events.map(sourceReference),sites.map(site=>[site.siteId,site.name,site.longitude,site.latitude,site.dataSource])]);}
