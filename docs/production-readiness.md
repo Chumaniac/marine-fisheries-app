@@ -1,6 +1,8 @@
 # 生产接入准备与业务闭环交付（2026-10-12）
 
-2026-11-03 当前源码修复与合成隔离证据见[优先修复与验证](reviews/2026-11-03-priority-fixes.md)；本轮未做现场或生产验收。
+本页保留该阶段的实现和验证记录。文中以文件名列出的内部回执未随社区版分发。[社区版验证范围](verification.md) · [在线合成演示](https://chumaniac.github.io/marine-fisheries-app/)
+
+2026-11-03 当前源码修复与合成隔离证据见优先修复与验证（`reviews/2026-11-03-priority-fixes.md`）；本轮未做现场或生产验收。
 
 最新用户功能验收见 [用户功能最终验收](user-acceptance.md)，包含本轮发现的页面遗漏、修复与浏览器回验。
 
@@ -23,11 +25,11 @@
 ## 实际验证
 
 - **40 项 Python、7 项前端测试通过**，包括生产登录、状态/nonce/会话撤销、租户隔离、busy 心跳、故障循环恢复、sample 证据绑定、复核后发布、加密恢复和双写入拒绝。事件契约 4 正例/9 反例、Ruff、前端构建通过。链码/JVM 本轮未改，其上轮 3 项 Go 测试和构建证据仍保留。Python 依赖的 219 条弃用警告未隐藏。
-- **生产 Compose/TLS 网关配置、候选容器构建与断网烟测通过**：Linux ARM64、只读根文件系统、非 root 用户、真实签名 ONNX；生产演示登录拒绝，OIDC 跳转可建立，缺真实 broker/备份时不伪装 ready。[容器证据](evidence/production-container-check.json)
-- **实际边缘上传**：复用原合成运动片段，55 份加密图像与事件均被实际 API 接收，待投递归零。人工复核分支在隔离测试中走通；真实复核池没有代填标签。[边缘证据](evidence/edge-production-roundtrip.json)
-- **实际双副本**：复用既有已上链证据，两个本地 IPFS 节点核验成功，manifest 与原链摘要未变。[副本证据](evidence/ipfs-replica-check.json)
-- **实际整套恢复**：应用、边缘 SQLite/密文、模型、机构身份配置、Kafka、Flink、双 IPFS、双 peer 和 orderer 共 13 组件恢复到隔离目录/新卷，逐文件摘要一致；约 370MB 的加密封装完成解密复验。恢复的应用可读取既有 DELIVERED 批次及解密证据；原 Flink 从保存点恢复运行。[灾备证据](evidence/system-recovery-check.json)
-- **依赖接入检查通过**：原应用 ready、唯一运行中的 Flink 作业、所需 Kafka topics、Fabric 身份/通道、两个不同 IPFS 节点 ID。[接入证据](evidence/dependency-commission-check.json)
+- **生产 Compose/TLS 网关配置、候选容器构建与断网烟测通过**：Linux ARM64、只读根文件系统、非 root 用户、真实签名 ONNX；生产演示登录拒绝，OIDC 跳转可建立，缺真实 broker/备份时不伪装 ready。容器证据（`evidence/production-container-check.json`）
+- **实际边缘上传**：复用原合成运动片段，55 份加密图像与事件均被实际 API 接收，待投递归零。人工复核分支在隔离测试中走通；真实复核池没有代填标签。边缘证据（`evidence/edge-production-roundtrip.json`）
+- **实际双副本**：复用既有已上链证据，两个本地 IPFS 节点核验成功，manifest 与原链摘要未变。副本证据（`evidence/ipfs-replica-check.json`）
+- **实际整套恢复**：应用、边缘 SQLite/密文、模型、机构身份配置、Kafka、Flink、双 IPFS、双 peer 和 orderer 共 13 组件恢复到隔离目录/新卷，逐文件摘要一致；约 370MB 的加密封装完成解密复验。恢复的应用可读取既有 DELIVERED 批次及解密证据；原 Flink 从保存点恢复运行。灾备证据（`evidence/system-recovery-check.json`）
+- **依赖接入检查通过**：原应用 ready、唯一运行中的 Flink 作业、所需 Kafka topics、Fabric 身份/通道、两个不同 IPFS 节点 ID。接入证据（`evidence/dependency-commission-check.json`）
 
 这些证明软件路径和本地恢复能力。没有启动隔离副本中的第二套 Fabric/Kafka 集群接管生产，没有自动切换流量，也没有把人工填入的布尔值当成独立专家验收。当前高可用取舍是单写入者 + 受控备用恢复，目标 RPO 由备份频率决定，RTO 必须在目标环境测量；不是无中断多活。
 

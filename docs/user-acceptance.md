@@ -1,5 +1,7 @@
 # 用户功能最终验收 · 2026-10-12
 
+本页保留该阶段的实现和验证记录。文中以文件名列出的内部回执未随社区版分发。[社区版验证范围](verification.md) · [在线合成演示](https://chumaniac.github.io/marine-fisheries-app/)
+
 结论：按用户确认的“软件业务闭环”标准，四个模块的本地用户操作已打通，最终验收发现的页面遗漏和冷链异常处理问题已修复并回验。可以在页面完成数据录入、识别、预测查看、离线业务、机构交接、加工与证据追溯；当前分类范围为公开数据的两类。真实海域效果、目标设备表现及生产上线仍未验收。
 
 本页是最新用户功能验收入口。前期 [软件交付](software-completion.md) 和 [生产接入准备](production-readiness.md) 保留各阶段实验和部署工具证据；不能用本页结论覆盖其中未达到的效果指标。
@@ -30,9 +32,9 @@
 
 最终合批 `user-final-merged`：已送达、加工机构持有、850克，本地业务版本3，待链操作0、未解决冷链异常0、证据2份且均为COMMITTED。链账版本5包含两次追加证据，与本地业务版本并非同一计数器；最终状态、机构、重量和父批次均核验一致。
 
-- [最终只读验收回执](evidence/user-acceptance.json)：实际API、账本、两份证据核验、图像摘要、模型状态和ready结果。
-- [浏览器最终截图](evidence/user-acceptance-trace.jpg)：已送达、2份已存证、0待处理及账本一致。
-- [自动预测发布](evidence/forecast-cycle.json)、[流处理](evidence/stream-software-check.json)、[前期双机构流转](evidence/logistics-integration.json)：复用既有成功实验，不为更新页面重新生成资产。
+- 最终只读验收回执（`evidence/user-acceptance.json`）：实际API、账本、两份证据核验、图像摘要、模型状态和ready结果。
+- 浏览器最终截图（`evidence/user-acceptance-trace.jpg`）：已送达、2份已存证、0待处理及账本一致。
+- 自动预测发布（`evidence/forecast-cycle.json`）、流处理（`evidence/stream-software-check.json`）、前期双机构流转（`evidence/logistics-integration.json`）：复用既有成功实验，不为更新页面重新生成资产。
 
 本轮自动化检查：**42项Python、12项JavaScript通过**；事件契约4正例/9反例、Ruff、前端构建、改动格式检查通过。新增检查覆盖站点/设备/环境/CPUE、跨站点拒绝、非法导入、冷链阻止送达与幂等处置、原图与训练ZIP、离线连续操作和交接冲突。Python依赖的219条弃用警告仍存在；本轮没有改动链码或JVM，不重复其既有构建。最终本地 `/ready` 返回true。
 
