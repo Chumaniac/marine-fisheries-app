@@ -41,7 +41,8 @@ test('source export refuses a changed site or authenticated scope',()=>{
 });
 
 test("map export keeps signed coordinates numeric, unknown counts empty, and site names literal", () => {
- const csv=geographyCsv([{siteId:' =1+1',longitude:-73.5,latitude:41.2,count:null,dataSource:'synthetic',payload:'omit-secret'}]);
+ const csv=geographyCsv({siteLocations:[{siteId:' =1+1',longitude:-73.5,latitude:41.2,count:null,dataSource:'synthetic',payload:'omit-secret'}],siteId:'site-a',speciesId:'fish',generatedAt:10},true);
+ assert.ok(csv.includes('1970-01-01T00:00:10.000Z')); assert.ok(csv.includes('缓存快照'));
  assert.ok(csv.includes(`"' =1+1","-73.5","41.2","","合成"`));
  assert.ok(!csv.includes('omit-secret'));
 });
