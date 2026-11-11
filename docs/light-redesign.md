@@ -1,5 +1,7 @@
 # 浅色工作台改版 · 2026-10-12
 
+本页保留该阶段的实现和验证记录。文中以文件名列出的内部回执未随社区版分发。[社区版验证范围](verification.md) · [在线合成演示](https://chumaniac.github.io/marine-fisheries-app/)
+
 已将海洋渔业系统调整为 Genkoy 的浅色视觉体系，保持四个模块、原有页面顺序与操作流程。原128个元素标识、15个表单及12个二级分区均保留，没有改动后端接口、模型、数据库或验收批次。
 
 ## 设计与实现
@@ -21,4 +23,4 @@
 
 未进行真实读屏软件验收、200%字体缩放专测或同条件改版前后性能基准；没有把界面改版当作现场效果或生产上线。图表表格最多使用当前图表的有界数据，字体本地缓存，不增加后台轮询和生成请求。
 
-证据：[功能与结构检查](evidence/redesign-checks.json)、[响应式测量](evidence/redesign-responsive.json)、[桌面截图](evidence/redesign-desktop.jpg)、[平板截图](evidence/redesign-tablet.jpg)、[手机截图](evidence/redesign-mobile.jpg)、[离线截图](evidence/redesign-offline.jpg)。原业务验收见[用户功能最终验收](user-acceptance.md)。设计参考为当前Genkoy工作区的globals.css与组件规则；可访问性复核采用本机web-design-guidelines技能的固定版本规范。
+证据：功能与结构检查（`evidence/redesign-checks.json`）、响应式测量（`evidence/redesign-responsive.json`）、桌面截图（`evidence/redesign-desktop.jpg`）、平板截图（`evidence/redesign-tablet.jpg`）、手机截图（`evidence/redesign-mobile.jpg`）、离线截图（`evidence/redesign-offline.jpg`）。原业务验收见[用户功能最终验收](user-acceptance.md)。设计参考为当前Genkoy工作区的globals.css与组件规则；可访问性复核采用本机web-design-guidelines技能的固定版本规范。

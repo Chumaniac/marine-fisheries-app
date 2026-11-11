@@ -1,5 +1,7 @@
 # 本地实现与验收报告
 
+本页保留该阶段的实现和验证记录。文中以文件名列出的内部回执未随社区版分发。[社区版验证范围](verification.md) · [在线合成演示](https://chumaniac.github.io/marine-fisheries-app/)
+
 > 此文记录 2026-10-10 阶段。当前软件进展以 [2026-10-12 软件闭环交付](software-completion.md) 为准：自动预测、身份绑定、完整链同步、离线证据、备份恢复等缺口已在该阶段补齐；以下历史数值和限制保留原日期含义。
 
 2026 年 10 月 10 日。本地四模块已接入实际组件并贯通，但**整体项目仍未达到全部原始验收目标**。公开数据实验、本地合成业务集成与现场生产验收分别记录。
@@ -15,7 +17,7 @@
 
 源码位于 `marine/`、`jvm/`、`web/`、`chaincode/`。复现步骤见 [运行说明](local-runtime.md)。原始方案和初始合成展示保留。
 
-本次检查通过：19 项 Python、5 项 JavaScript、2 项 Go 链码单元检查，以及 4 个有效/9 个非法事件契约样例；JVM 与前端构建通过。Python 依赖有弃用警告，未隐藏；这些检查不是生产安全签核。[检查摘要](evidence/test-summary.json) · [最终组件核验](evidence/final-integration.json) · [实际界面](evidence/app-preview.jpg)
+本次检查通过：19 项 Python、5 项 JavaScript、2 项 Go 链码单元检查，以及 4 个有效/9 个非法事件契约样例；JVM 与前端构建通过。Python 依赖有弃用警告，未隐藏；这些检查不是生产安全签核。检查摘要（`evidence/test-summary.json`） · 最终组件核验（`evidence/final-integration.json`） · 实际界面（`evidence/app-preview.jpg`）
 
 ## 识别实验
 
@@ -35,7 +37,7 @@
 
 没有证明 Focal Loss 改善结果，也没有实现误判下降 60%。不能用两类公开数据的 98.78% 宣称原目标场景已超过 92.3%。60 次搜索针对冻结 B0 的分类头；随后尝试末两阶段微调并按验证集选择，并非 60 次完整骨干训练。
 
-证据：[模型报告](evidence/classification-report.json)、[逐条预测](evidence/classification-test-predictions.csv)、[60 次试验](evidence/optimization-trials.json)、[数据来源](evidence/dataset-provenance.json)。
+证据：模型报告（`evidence/classification-report.json`）、逐条预测（`evidence/classification-test-predictions.csv`）、60 次试验（`evidence/optimization-trials.json`）、数据来源（`evidence/dataset-provenance.json`）。
 
 ## 量化与边缘性能
 
@@ -43,7 +45,7 @@ FP32 ONNX 约 16.0 MB。第一版 INT8 约 4.4 MB，验证 macro-F1 为 60.43%�
 
 本机 CPU 验证样本暖推理 p95 约 9 ms（FP32），INT8 约 6–8 ms；不含摄像头、检测跟踪、网络及功耗。另一次 20 张预处理/推理调用均值约 28.8 ms，含首次冷启动的最大值约 410 ms。没有宣称真实边缘设备达到 250 ms。
 
-证据：[第一版 INT8](evidence/int8-first-candidate.json)、[逐通道 INT8](evidence/int8-perchannel-candidate.json)、[CPU 烟测](evidence/onnx-cpu-smoke.json)。
+证据：第一版 INT8（`evidence/int8-first-candidate.json`）、逐通道 INT8（`evidence/int8-perchannel-candidate.json`）、CPU 烟测（`evidence/onnx-cpu-smoke.json`）。
 
 ## 流处理和预测
 
@@ -51,9 +53,9 @@ Flink 从实际 Kafka 读取事件、生成分钟窗口，由独立消费者落�
 
 水位线在 Kafka source 设置以保留分区进度，空闲分区阈值为 2 分钟。调整前保留原作业 savepoint，新拓扑在本地通过 Kafka 日志与幂等读模型重建，未宣称生产无损升级。
 
-实际组件检查确认：同一事件发送两次只计数一次，超迟到事件进入旁路。消费者修复了全局 commit 提前确认其他分区的问题，原子条件更新防止旧重放覆盖新计数或水位线。[实际流检查](evidence/stream-recovery-check.json)
+实际组件检查确认：同一事件发送两次只计数一次，超迟到事件进入旁路。消费者修复了全局 commit 提前确认其他分区的问题，原子条件更新防止旧重放覆盖新计数或水位线。实际流检查（`evidence/stream-recovery-check.json`）
 
-合成 CPUE 的滚动回测 WAPE 为 4.299%、区间覆盖约 94.74%。数据由公式和噪声生成，**不是海洋渔情准确率 85.4% 的验收**。[合成报告](evidence/synthetic-regression-report.json)
+合成 CPUE 的滚动回测 WAPE 为 4.299%、区间覆盖约 94.74%。数据由公式和噪声生成，**不是海洋渔情准确率 85.4% 的验收**。合成报告（`evidence/synthetic-regression-report.json`）
 
 Kafka 仅供受信任的本机服务写入；租户没有直接 broker 访问入口。tenantId 本身不是认证机制，生产必须增加服务身份、ACL/TLS和设备绑定，不能公开本地 broker。
 
@@ -65,9 +67,9 @@ Kafka 仅供受信任的本机服务写入；租户没有直接 broker 访问入
 
 `db1e89cb1d9d4c7e23a51543fcee71c730c30e377a58857dc6558f9527483e8d`
 
-交易返回 VALID，链上 commitment 与 manifest 匹配，解密后原始摘要匹配，重复请求返回同一交易。[存证回执](evidence/fabric-ipfs-integration.json)
+交易返回 VALID，链上 commitment 与 manifest 匹配，解密后原始摘要匹配，重复请求返回同一交易。存证回执（`evidence/fabric-ipfs-integration.json`）
 
-`origin-audit` 为 Org1-only 通道，Org1 查询成功、Org2 失败。[隔离结果](evidence/channel-isolation.json)。链码升级至 1.1、sequence 2，修复交接申请 ID 跨组织重复时可能覆盖原申请的问题。
+`origin-audit` 为 Org1-only 通道，Org1 查询成功、Org2 失败。隔离结果（`evidence/channel-isolation.json`）。链码升级至 1.1、sequence 2，修复交接申请 ID 跨组织重复时可能覆盖原申请的问题。
 
 这是单主机双组织、单 orderer、单 IPFS 节点的本地网络，不是五个独立机构的生产治理、CA/KMS、多副本或容灾验收。业务本地状态与证据锚定状态分别显示；“证据已锚定”不代表全部本地业务转换已同步为链上转换。
 

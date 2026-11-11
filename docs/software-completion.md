@@ -1,5 +1,7 @@
 # 2026-10-12 软件闭环交付
 
+本页保留该阶段的实现和验证记录。文中以文件名列出的内部回执未随社区版分发。[社区版验证范围](verification.md) · [在线合成演示](https://chumaniac.github.io/marine-fisheries-app/)
+
 最新用户功能验收见 [用户功能最终验收](user-acceptance.md)，包含本轮发现的页面遗漏、修复与浏览器回验。
 
 当前最新接入与恢复闭环见 [生产接入准备与业务闭环交付](production-readiness.md)。本页保留上一阶段的软件范围与证据。
@@ -25,10 +27,10 @@
 ## 验证边界与证据
 
 - 自动化：30 项 Python、7 项 JavaScript、3 项 Go 链码测试；4 个正例与 9 个非法事件契约检查；Ruff 检查、前端与 JVM 构建通过。Python 依赖仍有 219 条弃用警告。
-- 真实本地组件：[自动预测周期](evidence/forecast-cycle.json)、[Kafka/Flink](evidence/stream-software-check.json)、[双组织溯源/IPFS/历史版本](evidence/logistics-integration.json)。业务内容为明确标注的合成数据。
-- 浏览器：[断线恢复记录](evidence/software-browser-checks.json)、[界面截图](evidence/software-browser.png)。LCP 单次本机观测 188ms，未据此声称海上 p75 1.5 秒。
-- 恢复、签名模型与查询资源测量：[运行检查](evidence/operations-verification.json)。性能测量是本机 TestClient/ASGI，非公网、压力并发、边缘设备或生产 SLA。
-- [校准实验](evidence/calibration-report.json)：temperature=0.3513；测试准确率仍 98.7786%，NLL 从 0.0304 变为 0.0600，ECE 从 0.00776 变为 0.00969。候选明确拒绝；没有继续围绕测试集调参。两种先前失败的 INT8 也没有上线。
+- 真实本地组件：自动预测周期（`evidence/forecast-cycle.json`）、Kafka/Flink（`evidence/stream-software-check.json`）、双组织溯源/IPFS/历史版本（`evidence/logistics-integration.json`）。业务内容为明确标注的合成数据。
+- 浏览器：断线恢复记录（`evidence/software-browser-checks.json`）、界面截图（`evidence/software-browser.png`）。LCP 单次本机观测 188ms，未据此声称海上 p75 1.5 秒。
+- 恢复、签名模型与查询资源测量：运行检查（`evidence/operations-verification.json`）。性能测量是本机 TestClient/ASGI，非公网、压力并发、边缘设备或生产 SLA。
+- 校准实验（`evidence/calibration-report.json`）：temperature=0.3513；测试准确率仍 98.7786%，NLL 从 0.0304 变为 0.0600，ECE 从 0.00776 变为 0.00969。候选明确拒绝；没有继续围绕测试集调参。两种先前失败的 INT8 也没有上线。
 
 ## 有意保留的运行边界
 
