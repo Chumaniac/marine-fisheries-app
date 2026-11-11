@@ -1,14 +1,22 @@
-# 澜知海洋 · 独立用户版
+<img src="showcase/marine.svg" width="56" height="56" alt="" />
 
-界面与首次使用引导默认使用中文；产品名、命令、文件名和原始业务内容保留原文。
+# 澜知海洋
 
-在本机整理渔业采集记录、质量问题与分析结果。
+[![Build](https://github.com/Chumaniac/marine-fisheries-app/actions/workflows/user-edition.yml/badge.svg?branch=main)](https://github.com/Chumaniac/marine-fisheries-app/actions/workflows/user-edition.yml) [![License](https://img.shields.io/badge/license-MIT-555)](LICENSE)
 
-本地 SQLite 与可追溯数据契约连接采集、质量核对、分析和导出；缺少模型或外部链路时明确标注，不伪造分类或上链回执。
+整理渔业采集批次，追踪质量问题并回看观测记录。
 
-这是包含完整可构建源码的社区用户仓库，不依赖原私有仓库。旧仓库的提交历史、用户数据、模型缓存和内部验收记录不在这里。
+[在线试用](https://chumaniac.github.io/marine-fisheries-app/) · [桌面下载](https://github.com/Chumaniac/marine-fisheries-app/releases)
 
-## 开始使用
+公开页面使用合成序列演示正常、弱网和离线状态。可切换鱼种或推进存证步骤，图表随操作更新。
+
+## 核心功能
+
+- 比较观测曲线、预测区间与批次状态。
+- 在本机版登记采集任务，查看问题和处置记录。
+- 导出记录供复核，并保留原批次的来源信息。
+
+## 本机快速开始
 
 前提：Python 3.12、uv。前端修改需要 Node 24；外部 JVM/Go 服务是进阶选项。
 
@@ -22,7 +30,7 @@ uv pip sync --python .venv/bin/python requirements.local.lock
 
 浏览器只连接本机回环地址。桌面版下载与系统支持以 [Releases](https://github.com/Chumaniac/marine-fisheries-app/releases) 的实际资产为准；没有对应资产时从源码安装。桌面构建方式见 [构建说明](docs/build.md)。
 
-## 用一次完整流程
+## 操作步骤
 
 建采集任务 → 填写/导入记录 → 质量核对 → 分类与分析 → 教师/业务复核 → 导出
 
@@ -48,3 +56,9 @@ macOS：~/Library/Application Support/MarineFisheries/workspace；其他系统�
 - [参考项目与许可](docs/references.md)
 
 许可证见 [LICENSE](LICENSE)，第三方资料见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+## 常见问题
+
+**能在海上直接使用网页版吗？** 网页提供合成样例。本机采集环境与配置见[运行说明](docs/local-runtime.md)，现场性能需要实际航次验证。
+
+[参与贡献](CONTRIBUTING.md)
