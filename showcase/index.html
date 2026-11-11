@@ -31,7 +31,7 @@
     <div class="metric"><div class="label">数据状态</div><div class="value" id="freshness">模拟在线</div><div class="caption" id="freshness-detail">固定场景：2026-10-09 10:00 +08:00</div></div>
   </section>
   <div class="grid">
-    <section class="panel"><div class="panel-head"><div><h2>渔情趋势与不确定性</h2><div class="caption">CPUE · kg / 标准化作业小时</div></div><span class="tag">SYNTHETIC</span></div><div class="chart-wrap"><svg id="trend" viewBox="0 0 680 300" role="img" aria-label="合成 CPUE 历史与未来预测曲线"><title>合成 CPUE 曲线，无真实业务含义</title></svg></div><div class="legend"><span><i class="swatch"></i>合成历史</span><span><i class="swatch pred"></i>合成预测</span><span><i class="swatch band"></i>示意预测区间</span></div><div class="panel-body"><details><summary>查看可访问的数据表</summary><div class="table-scroll"><table><caption class="sr-only">曲线对应的合成值</caption><thead><tr><th>相对时间</th><th>CPUE</th><th>类型</th></tr></thead><tbody id="chart-data"></tbody></table></div></details></div></section>
+    <section class="panel"><div class="panel-head"><div><h2>渔情趋势与不确定性</h2><div class="caption">CPUE · kg / 标准化作业小时</div></div><span class="tag">SYNTHETIC</span></div><div class="chart-wrap"><svg id="trend" viewBox="0 0 680 300" role="img" aria-label="合成 CPUE 历史与未来预测曲线"><title>合成 CPUE 曲线，无真实业务含义</title></svg></div><div class="legend"><span><i class="swatch"></i>合成历史</span><span><i class="swatch pred"></i>合成预测</span><span><i class="swatch band"></i>示意预测区间</span></div><div class="panel-body"><button type="button" id="export-trend">下载当前鱼种 CSV</button><details><summary>查看趋势数据表</summary><div class="table-scroll"><table><caption class="sr-only">曲线对应的合成值</caption><thead><tr><th>相对时间</th><th>CPUE</th><th>类型</th><th>区间下限</th><th>区间上限</th></tr></thead><tbody id="chart-data"></tbody></table></div></details></div></section>
     <section class="panel"><div class="panel-head"><div><h2>海区观测分布</h2><div class="caption">抽象海区网格 · 不对应真实坐标</div></div><span class="tag">DEMO AREA</span></div><div class="map"><svg viewBox="0 0 460 285" role="img" aria-label="合成海区网格 A 到 F 的观测分布"><title>非真实地理信息，A 海区为选定演示区域</title><defs><pattern id="mapGrid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#d3e1dd" stroke-width=".7"/></pattern></defs><rect width="460" height="285" fill="url(#mapGrid)"/><path d="M0 0H126Q85 56 134 94T78 174T52 285H0Z" fill="#d4dfd3"/><g fill="none" stroke="#b5cecb"><path d="M165 -20Q101 64 186 112T132 305"/><path d="M195 -20Q131 64 216 112T162 305"/><path d="M225 -20Q161 64 246 112T192 305"/><path d="M255 -20Q191 64 276 112T222 305"/><path d="M285 -20Q221 64 306 112T252 305"/></g><g stroke="white" stroke-width="2"><rect x="220" y="72" width="56" height="48" rx="4" fill="#087f78"/><rect x="281" y="72" width="56" height="48" rx="4" fill="#84bcb0"/><rect x="342" y="72" width="56" height="48" rx="4" fill="#bad9c6"/><rect x="220" y="125" width="56" height="48" rx="4" fill="#a6cdbd"/><rect x="281" y="125" width="56" height="48" rx="4" fill="#4e9d94"/><rect x="342" y="125" width="56" height="48" rx="4" fill="#d1e2d6"/></g><g font-size="13" text-anchor="middle" font-family="sans-serif"><text x="248" y="102" fill="white">A</text><text x="309" y="102" fill="#173f3b">B</text><text x="370" y="102" fill="#173f3b">C</text><text x="248" y="155" fill="#173f3b">D</text><text x="309" y="155" fill="#173f3b">E</text><text x="370" y="155" fill="#173f3b">F</text></g><text x="34" y="60" font-size="12" fill="#526a63">抽象陆地</text><text x="220" y="220" font-size="11" fill="#3f6661">深色表示较高的合成观测强度</text><text id="map-values" x="220" y="240" font-size="10" fill="#526a73">A 128 · B 82 · C 46 · D 61 · E 104 · F 32</text></svg></div><div class="map-detail"><span>选定区域 <strong>A</strong> · 仅作结构示意</span><span>生产环境按权限降低地理精度</span></div></section>
   </div>
   <div class="pipeline" aria-label="四模块数据流"><article class="step"><small>01 / 边缘</small><h3>水下鱼种识别</h3><p>增强 → 检测与轨迹 → B0 分类<br>保留未知与低置信状态</p></article><article class="step"><small>02 / 云端</small><h3>渔情实时预测</h3><p>Kafka → Flink → 带权回归<br>事件时间与迟到版本修订</p></article><article class="step"><small>03 / 船端与云端</small><h3>弱网可视化</h3><p>聚合查询 → 缓存 → 降级<br>区分有效预测与陈旧数据</p></article><article class="step"><small>04 / 多方协作</small><h3>批次证据溯源</h3><p>加密 IPFS → Fabric 摘要<br>提交回执与链下原件对账</p></article></div>
@@ -69,8 +69,26 @@
     byId('interval').textContent=`示意区间 ${item.lower}–${item.upper} · 未校准覆盖率`;
     byId('observations').innerHTML=`${item.count} <span class="unit">条 / 30 分钟</span>`;
     byId('map-values').textContent=['A','B','C','D','E','F'].map((name,i)=>`${name} ${Math.round(item.count*[1,.64,.36,.48,.81,.25][i])}`).join(' · ');
-    const rows=item.history.map((v,i)=>({time:`${(i-6)*15} min`,value:v,type:'合成历史'})).concat(item.forecast.slice(1).map((v,i)=>({time:`+${(i+1)*15} min`,value:v,type:'合成预测'})));
-    byId('chart-data').replaceChildren(...rows.map(row=>{const tr=document.createElement('tr');[row.time,row.value,row.type].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td);});return tr;}));
+    const rows=item.history.map((v,i)=>[(i-6)*15,v,'合成历史','','']);
+    item.forecast.slice(1).forEach((v,i)=>rows.push([(i+1)*15,v,'合成预测',low[i+1].toFixed(1),high[i+1].toFixed(1)]));
+    byId('chart-data').replaceChildren(...rows.map(row=>{
+      const tr=document.createElement('tr');
+      row.forEach((value,column)=>{
+        const td=document.createElement('td');
+        td.textContent=column===0 ? value+' min' : value==='' ? '—' : value;
+        tr.append(td);
+      });
+      return tr;
+    }));
+    byId('export-trend').onclick=()=>{
+      const species=byId('species').selectedOptions[0].textContent;
+      const headings='鱼种,相对分钟,CPUE(kg/标准化作业小时),类型,示意下限,示意上限';
+      const lines=rows.map(row=>[species,...row].join(','));
+      const blob=new Blob(['\uFEFF',[headings,...lines].join('\r\n'),'\r\n'],{type:'text/csv;charset=utf-8'});
+      const url=URL.createObjectURL(blob),link=document.createElement('a');
+      link.href=url;link.download='cpue-synthetic-'+(index+1)+'.csv';link.click();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    };
   }
   byId('species').addEventListener('change',event=>drawChart(Number(event.target.value)));
   let mode='online', traceStep=0;
