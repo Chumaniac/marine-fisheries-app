@@ -57,8 +57,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         pass
 
 
-server = http.server.ThreadingHTTPServer(("127.0.0.1", port), Handler)
+# Reserve output before server_bind can perform a platform hostname lookup.
+# Existing files/links must fail immediately, even when DNS is unavailable.
 write_result("result.json", json.dumps({"pid": os.getpid(), "cwd": os.getcwd()}))
+server = http.server.ThreadingHTTPServer(("127.0.0.1", port), Handler)
 if mode == "managed":
     write_result("result.state.json", json.dumps({"pid": os.getpid(), "port": port, "started": subprocess.check_output(
         ["ps", "-p", str(os.getpid()), "-o", "lstart="], text=True).strip()}))

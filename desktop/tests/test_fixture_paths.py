@@ -18,9 +18,9 @@ class FixturePathChecks(unittest.TestCase):
         self.root = Path(tempfile.gettempdir()).resolve() / ("native-fixture-" + str(self.port))
         self.assertFalse(self.root.exists() or self.root.is_symlink())
 
-    def refuse(self, *extra):
+    def refuse(self, *extra, environment=None):
         result = subprocess.run([sys.executable, str(FIXTURE), str(self.port), "normal", *extra],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=3)
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=3, env=environment)
         self.assertNotEqual(result.returncode, 0)
 
     def test_output_path_argument_is_refused(self):
@@ -35,6 +35,20 @@ class FixturePathChecks(unittest.TestCase):
         try:
             output.write_text("retained synthetic fixture")
             self.refuse()
+            self.assertEqual(output.read_text(), "retained synthetic fixture")
+        finally:
+            output.unlink(missing_ok=True)
+            self.root.rmdir()
+
+    def test_existing_output_refuses_before_a_blocked_hostname_lookup(self):
+        self.root.mkdir(mode=0o700)
+        output = self.root / "result.json"
+        try:
+            output.write_text("retained synthetic fixture")
+            with tempfile.TemporaryDirectory(prefix="fixture-dns-guard-") as directory:
+                (Path(directory) / "sitecustomize.py").write_text(
+                    "import socket,time\nsocket.getfqdn=lambda *args: (time.sleep(10) or 'localhost')\n")
+                self.refuse(environment={**os.environ, "PYTHONPATH": directory})
             self.assertEqual(output.read_text(), "retained synthetic fixture")
         finally:
             output.unlink(missing_ok=True)
