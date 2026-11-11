@@ -127,7 +127,7 @@ $('export-geo').addEventListener('click',()=>{
  const snapshot=lastOverview;
  renderOverviewScope(snapshot);
  if($('export-geo').disabled)return;
- const contents=geographyCsv(snapshot.siteLocations);
+ const contents=geographyCsv(snapshot,batchPageCached);
  const url=URL.createObjectURL(new Blob([contents],{type:'text/csv;charset=utf-8'}));
  const link=document.createElement('a');link.href=url;link.download='marine-map-snapshot.csv';link.click();
  setTimeout(()=>URL.revokeObjectURL(url),1000);

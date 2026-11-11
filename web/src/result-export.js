@@ -25,10 +25,13 @@ function cell(value) {
   const literal = typeof value === "string" && (/^\s*[=+@-]/u.test(text) || /^[\t\r\n]/.test(text)) ? "'" + text : text;
   return '"' + literal.replaceAll('"', '""') + '"';
 }
-export function geographyCsv(points) {
-  const headings = ["站点", "聚合经度", "聚合纬度", "观测数", "数据来源"];
-  const rows = points.map(p => [p.siteId, p.longitude, p.latitude, p.count,
-    p.dataSource === "synthetic" ? "合成" : p.dataSource === "field" ? "现场" : "未确认"]);
+export function geographyCsv(snapshot, cached) {
+  const generated = new Date(typeof snapshot.generatedAt === "number" ? snapshot.generatedAt * 1000 : NaN);
+  const timestamp = Number.isFinite(generated.getTime()) ? generated.toISOString() : "";
+  const headings = ["站点", "聚合经度", "聚合纬度", "观测数", "数据来源", "看板筛选站点", "看板筛选物种", "快照生成时间 UTC", "读取方式"];
+  const rows = snapshot.siteLocations.map(p => [p.siteId, p.longitude, p.latitude, p.count,
+    p.dataSource === "synthetic" ? "合成" : p.dataSource === "field" ? "现场" : "未确认",
+    snapshot.siteId, snapshot.speciesId, timestamp, cached ? "缓存快照" : "服务响应"]);
   return "\uFEFF" + [headings, ...rows].map(row => row.map(cell).join(",")).join("\r\n");
 }
 export function sourceCsv(packet) {
