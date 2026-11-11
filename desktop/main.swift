@@ -525,6 +525,6 @@ do {
   application.delegate = delegate
   application.run()
 } catch {
-  fputs("APPLICATION_CONFIGURATION_UNAVAILABLE\n", stderr)
+  fputs("应用配置不可用（APPLICATION_CONFIGURATION_UNAVAILABLE）\n", stderr)
   exit(1)
 }

@@ -159,7 +159,7 @@ def main() -> int:
         if not owned_process(state):
             raise SystemExit("LOCAL_APP_PROCESS_CHANGED; no process stopped")
         os.kill(state["pid"], signal.SIGTERM)
-        print("Local app stop requested; saved data and evidence retained.")
+        print("已请求停止本地应用；已保存的数据和证据均保留。")
         return 0
     if not 1024 <= args.port <= 65535:
         raise ValueError("LOCAL_PORT_INVALID")
@@ -189,7 +189,7 @@ def main() -> int:
         state = json.loads(running.read_text())
         if owned_process(state):
             url = f"http://127.0.0.1:{state['port']}/"
-            print("Local app already running: " + url)
+            print("本地应用已在运行： " + url)
             if not args.no_open and not args.check:
                 webbrowser.open(url)
             return 0
@@ -247,7 +247,7 @@ def run_application(args, data, running):
 
     if not args.no_open:
         threading.Thread(target=open_when_ready, daemon=True).start()
-    print("Open " + url + " (local mode; Ctrl+C retains all saved data)", flush=True)
+    print("打开 " + url + "（本地模式；按 Ctrl+C 停止，已保存数据会保留）", flush=True)
     try:
         uvicorn.run(
             app,
@@ -274,5 +274,5 @@ if __name__ == "__main__":
         raise SystemExit(main())
     except (OSError, ValueError):
         raise SystemExit(
-            "LOCAL_DISTRIBUTION_OR_WORKSPACE_INVALID; no private values printed"
+            "本地程序或工作区不可用（LOCAL_DISTRIBUTION_OR_WORKSPACE_INVALID）；未输出私人配置"
         ) from None

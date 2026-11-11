@@ -90,12 +90,12 @@ def main(action):
             )
         )
         print(
-            "Local application: http://127.0.0.1:8871/ (keep this supervisor running)", flush=True
+            "本地应用：http://127.0.0.1:8871/（请保持此管理进程运行）", flush=True
         )
         while all(process.poll() is None for process in children):
             time.sleep(1)
         print(
-            "A service exited; inspect artifacts/api.log, gateway.log, worker.log", file=sys.stderr
+            "某项服务已退出，请查看 artifacts/api.log、gateway.log、worker.log", file=sys.stderr
         )
     except KeyboardInterrupt:
         pass
