@@ -1,0 +1,21 @@
+server:
+  address: 127.0.0.1
+  port: 8871
+spring:
+  application:
+    name: marine-gateway
+  http:
+    codecs:
+      max-in-memory-size: 9MB
+  cloud:
+    gateway:
+      server:
+        webflux:
+          httpclient:
+            connect-timeout: 3000
+            response-timeout: 15s
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

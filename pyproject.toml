@@ -1,0 +1,17 @@
+[project]
+name = "marine-fisheries-intelligence"
+version = "0.4.1"
+requires-python = ">=3.12"
+description = "Local marine fisheries edge, prediction, and traceability application"
+dependencies = ["fastapi", "uvicorn", "python-multipart", "numpy", "scikit-learn", "torch", "torchvision", "opencv-python-headless", "optuna", "cryptography", "kafka-python", "httpx", "jsonschema", "PyJWT", "jcs", "onnx", "onnxruntime"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]

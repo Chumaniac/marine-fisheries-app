@@ -1,0 +1,69 @@
+name: marine-fisheries
+services:
+  kafka:
+    image: apache/kafka:4.1.1
+    mem_limit: 900m
+    ports: ["127.0.0.1:19092:19092"]
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:19092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://127.0.0.1:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_HEAP_OPTS: -Xms256m -Xmx512m
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_NUM_PARTITIONS: 3
+    volumes: [kafka-data:/var/lib/kafka/data]
+  jobmanager:
+    image: flink:1.20.3-scala_2.12-java17
+    mem_limit: 900m
+    ports: ["127.0.0.1:18081:8081"]
+    command: jobmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        jobmanager.memory.process.size: 768m
+    volumes: [flink-checkpoints:/opt/flink/checkpoints]
+  taskmanager:
+    image: flink:1.20.3-scala_2.12-java17
+    mem_limit: 1400m
+    command: taskmanager
+    depends_on: [jobmanager]
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 1
+        taskmanager.memory.process.size: 1024m
+      KAFKA_BOOTSTRAP: kafka:9092
+    volumes: [flink-checkpoints:/opt/flink/checkpoints]
+  ipfs:
+    image: ipfs/kubo:v0.43.1
+    mem_limit: 512m
+    ports: ["127.0.0.1:15001:5001"]
+    environment:
+      IPFS_PROFILE: server
+    volumes:
+      - ipfs-data:/data/ipfs
+      - ./ipfs-init.sh:/container-init.d/001-private.sh:ro
+  ipfs-replica:
+    image: ipfs/kubo:v0.43.1
+    mem_limit: 256m
+    ports: ["127.0.0.1:15002:5001"]
+    environment:
+      IPFS_PROFILE: server
+    volumes:
+      - ipfs-replica-data:/data/ipfs
+      - ./ipfs-init.sh:/container-init.d/001-private.sh:ro
+
+volumes:
+  kafka-data:
+  flink-checkpoints:
+  ipfs-data:
+  ipfs-replica-data:

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "name": "澜知海洋",
+  "identifier": "com.chumaniac.marine",
+  "mark": "澜",
+  "port": 8871,
+  "smokePort": 19013,
+  "mode": "process",
+  "readySelector": "main",
+  "launch": {
+    "executable": "{{RESOURCES}}/runtime/python/bin/python3",
+    "arguments": [
+      "{{RESOURCES}}/runtime/app/tools/start_app.py",
+      "--no-open"
+    ],
+    "workingDirectory": "{{RESOURCES}}/runtime/app",
+    "environment": {
+      "PYTHONPATH": "{{RESOURCES}}/runtime/app",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "healthPath": "health",
+    "healthMarker": "sqlite-local",
+    "stopOnQuit": false,
+    "managedStateFile": "{{HOME}}/Library/Application Support/MarineFisheries/workspace/running.json",
+    "managedScript": "{{RESOURCES}}/runtime/app/tools/start_app.py",
+    "smokeArguments": [
+      "{{RESOURCES}}/runtime/app/tools/start_app.py",
+      "--no-open",
+      "--data-dir",
+      "{{SMOKE_DIR}}/workspace",
+      "--port",
+      "19013"
+    ],
+    "smokeManagedStateFile": "{{SMOKE_DIR}}/workspace/running.json",
+    "smokeManagedScript": "{{RESOURCES}}/runtime/app/tools/start_app.py"
+  },
+  "product": "marine"
+}

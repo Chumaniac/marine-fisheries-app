@@ -1,0 +1,52 @@
+.DS_Store
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+data/raw/
+models/weights/
+secrets/
+*.pem
+*.key
+node_modules
+artifacts/private/
+.venv/
+.runtime/
+artifacts/models/
+artifacts/database/
+artifacts/objects/
+artifacts/secrets/
+artifacts/training/
+data/processed/
+**/target/
+**/dist/
+*.log
+.pytest_cache/
+.ruff_cache/
+chaincode/vendor/
+jvm/.runtime/
+
+# Runtime outputs stay local. Reviewed evidence is copied explicitly into docs/evidence.
+artifacts/
+
+# Local preparation/rollback state, never source or release payload.
+.marine-runtime.lock
+.marine-preparing.json
+.venv.previous-*/
+.venv.failed-*/
+
+# Native build output
+desktop/build/
+
+# Community distribution build outputs and private runtime
+release/
+.runtime/
+*.app/
+*.sqlite3*
+*.db
+*.log
+.local/
+
+# Never publish a local target directory or build-cache link
+/target

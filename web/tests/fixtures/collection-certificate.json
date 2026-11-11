@@ -1,0 +1,46 @@
+{
+  "schema": "marine.collection-certificate/v1",
+  "certificate": {
+    "assessment": {
+      "schema": "marine.collection-assessment/v1",
+      "id": "assessment_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "orderId": "workorder-synthetic",
+      "orderRevision": 4,
+      "evidencePolicy": "local",
+      "bindingSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "outcome": "ready",
+      "issues": {},
+      "findings": [],
+      "findingsTruncated": false,
+      "coverage": {
+        "sources": 1,
+        "records": 1,
+        "batches": 0,
+        "selectedPayloadBytes": 512,
+        "complete": true,
+        "orderReferencesOnly": true,
+        "physicalImagesChecked": false,
+        "remoteAvailabilityChecked": false
+      },
+      "limits": {
+        "sources": 100,
+        "records": 128,
+        "batches": 32,
+        "evidencePerBatch": 16,
+        "inputBytes": 2097152,
+        "findings": 32,
+        "assessmentsPerOrder": 8
+      }
+    },
+    "decision": {
+      "assessmentId": "assessment_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "decision": "approve",
+      "reason": "Synthetic approval",
+      "reviewedBy": "synthetic-auditor"
+    }
+  },
+  "sha256": "31366531b641c3028a6747b364db4dd406758c879167033441a4a76784f0d833",
+  "current": {
+    "stale": false
+  }
+}

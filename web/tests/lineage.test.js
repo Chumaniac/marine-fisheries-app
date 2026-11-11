@@ -1,0 +1,17 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {validLineage,createLineageView} from '../src/lineage.js';
+const graph=()=>({schema:'marine.batch-lineage/v1',rootId:'root',direction:'both',complete:true,reasons:[],cycleDetected:false,nodes:[{batchId:'root',state:'LANDED',revision:1,ownerMSP:'Org1MSP',available:true,relations:['root'],depth:0}],edges:[],unresolvedLinks:0,scanned:1,limits:{nodes:100,edges:200,depth:8,scan:1000,recordBytes:65536},evidence:'tenant-local-metadata',ledgerVerified:false,mutated:false});
+test('lineage rejects malformed, unbounded, false-complete and foreign endpoint graph replies',()=>{
+ assert(validLineage(graph(),'root','both'));
+ for(const mutate of [v=>v.nodes.push(v.nodes[0]),v=>v.edges.push({parent:'root',child:'foreign'}),v=>v.complete=false,v=>v.mutated=true,v=>v.edges.push(null),v=>v.limits.nodes=101,v=>v.nodes[0].revision=0]){const value=graph();mutate(value);assert.equal(validLineage(value,'root','both'),false);}
+ const partial=graph();partial.complete=false;partial.reasons=['scan_limit'];assert(validLineage(partial,'root','both'));
+});
+class Element{constructor(){this.children=[];this.dataset={};this.listeners={};this.value='';this.textContent='';this.hidden=true;}append(...nodes){this.children.push(...nodes)}replaceChildren(...nodes){this.children=nodes}setAttribute(){}addEventListener(name,handler){this.listeners[name]=handler}}
+function view(request){const elements=Object.fromEntries(['root','direction','depth','status','result','load'].map(name=>[name,new Element()]));elements.direction.value='both';elements.depth.value='8';let scope='scope-a',selected='operation-batch';const root={querySelector:selector=>elements[selector.slice(14,-1)],ownerDocument:{createElement:()=>new Element()}};return {api:createLineageView({root,request,getScope:()=>scope,selectedBatch:()=>selected}),elements,setScope:value=>scope=value,selected:()=>selected};}
+test('old account response cannot restore lineage and read-only root stays separate from operation target',async()=>{
+ let release;const instance=view(()=>new Promise(resolve=>release=resolve));const pending=instance.api.load('root');instance.setScope('scope-b');instance.api.clear(true);release(graph());assert.equal(await pending,false);assert.equal(instance.elements.result.children.length,0);assert.equal(instance.elements.root.value,'');assert.equal(instance.selected(),'operation-batch');
+});
+test('changing a read field cancels obsolete results without touching operation selection',async()=>{
+ let release;const instance=view(()=>new Promise(resolve=>release=resolve));const pending=instance.api.load('root');instance.elements.root.value='new-root';instance.elements.root.listeners.input();release(graph());assert.equal(await pending,false);assert.equal(instance.elements.result.children.length,0);assert.equal(instance.selected(),'operation-batch');
+});
+
+test('a valid read renders bounded metadata without changing the operation target',async()=>{const instance=view(async()=>graph());assert.equal(await instance.api.load('root'),true);assert.equal(instance.elements.result.hidden,false);assert.equal(instance.elements.result.dataset.complete,'true');assert.equal(instance.selected(),'operation-batch');instance.api.clear(true);assert.equal(instance.elements.result.children.length,0);assert.equal(instance.elements.result.dataset.complete,undefined);});

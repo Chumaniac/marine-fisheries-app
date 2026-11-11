@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+      澜知海洋 · 观测工作台
+    </title>
+    <meta name="theme-color" content="#101e2b">
+    <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/style.css?v=30">
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">
+      跳转到主要内容
+    </a>
+    <aside class="workspace-sidebar" aria-label="澜知海洋工作区">
+      <div class="workspace-brand"><span class="workspace-mark" aria-hidden="true">澜</span><strong>澜知海洋</strong></div>
+      <p class="workspace-caption">工作区</p>
+      <nav class="task-navigation" aria-label="工作区入口">
+        <a href="#observation-overview" data-workspace-link="overview">观测概览</a>
+        <a href="#collection-title" data-workspace-link="collection">采集与录入</a>
+        <a href="#batch-title" data-workspace-link="trace">批次溯源</a>
+        <a href="#acceptance-workspace-title" data-workspace-link="review">验收与复核</a>
+        <a href="#operations-title" data-workspace-link="operations">同步与运维</a>
+      </nav>
+      <p class="workspace-footnote">本机工作台<br>观测、采集与批次记录</p>
+    </aside>
+    <header class="site-header"><div class="header-inner"><span>海洋渔业</span><span class="header-note">观测与作业记录</span></div></header>
+    <main id="main-content" tabindex="-1">
+      <div class="intro">
+        <div class="intro-copy">
+          <p class="eyebrow">OCEAN OBSERVATORY</p>
+          <h1>
+            观测与批次工作台
+          </h1>
+          <p>
+            当前使用公开图像和合成验收数据，现场与生产验收尚未完成。
+          </p>
+        </div>
+        <div class="actions session-actions">
+          <label>
+            本地演示机构
+            <select id="organization" name="organization">
+              <option value="Org1MSP">
+                捕捞机构
+              </option>
+              <option value="Org2MSP">
+                加工机构
+              </option>
+            </select>
+          </label>
+          <div class="actions session-buttons">
+          <button id="connect">
+            连接本地会话
+          </button>
+          <button id="refresh">
+            刷新数据
+          </button>
+          <button id="logout">
+            退出并清空缓存
+          </button>
+          </div>
+        </div>
+      </div>
+      <section class="card" data-workspace="collection" hidden aria-labelledby="collection-title">
+        <h2 id="collection-title">采集工单</h2>
+        <p class="hint">联网创建或打开工单，离线录入会保留待同步记录。</p>
+        <div class="collection-toolbar"><label>已保存工单<select id="collection-saved"><option value="">选择工单</option></select></label><div class="actions"><button id="collection-open" type="button">打开工单</button><button id="collection-refresh" type="button">刷新工单</button><button id="collection-more" type="button" disabled>下一页工单</button><button id="collection-new" type="button">新建工单</button></div></div>
+        <details id="collection-legacy" hidden><summary>本机旧作业（只读保留）</summary><p class="hint">旧记录不会自动导入或关联到服务器工单。</p><ul id="collection-legacy-list"></ul></details>
+        <form id="collection-form" class="filters">
+          <label>工单站点<select id="collection-site" required></select></label>
+          <label>工单设备<select id="collection-device" required></select></label>
+          <label>开始时间<input id="collection-start" type="datetime-local" required></label>
+          <label>结束时间（最多7天）<input id="collection-end" type="datetime-local" required></label>
+          <button>保存新工单</button>
+        </form>
+        <p id="collection-context" role="status">连接后可开始作业。</p><p id="collection-window" class="hint"></p>
+        <section id="collection-input-guard" class="collection-input-guard" aria-labelledby="collection-input-title" hidden><h3 id="collection-input-title" tabindex="-1">当前录入尚未提交</h3><p id="collection-input-status" role="status" aria-live="polite"></p><div class="actions"><button id="collection-input-review" type="button" hidden>核对最新信息，保留文本并重选来源</button><button id="collection-input-discard" type="button">放弃未提交输入</button></div><p class="hint">只处理当前表单输入，不删除本机待同步记录、已收件回执或原工单。</p></section><div id="collection-active" hidden>
+          <section id="collection-journey" class="collection-journey" aria-labelledby="collection-journey-title" hidden><h3 id="collection-journey-title"></h3><p id="collection-journey-state" role="status" aria-live="polite"></p><dl id="collection-journey-counts"></dl><div class="actions"><a id="collection-next-step" href="#collection-sources">继续当前工单</a></div></section>
+          <nav aria-label="本次作业步骤" class="actions"><a href="#classify-form">1. 选择或登记观测</a><a href="#environment-form">2. 环境读数</a><a href="#catch-form">3. 渔获关联</a><a href="#batch-form">4. 批次关联</a></nav>
+          <label id="collection-source-picker">当前页可关联来源<select id="collection-sources" multiple size="4"></select></label>
+          <div class="actions" id="collection-edit-actions"><button id="collection-attach" type="button">关联所选来源</button><button id="collection-close" type="button">结束工单</button></div>
+          <p class="hint">仅关联当前站点和时间内的来源，更多来源按页查看。有待同步记录时不能结束作业。</p>
+          <section id="collection-reuse-panel" hidden aria-labelledby="collection-reuse-title"><h3 id="collection-reuse-title">关联已有收件</h3><p class="hint">原业务已经收件时，选择另一份可读取工单中的记录，只关联到当前工单。原工单、回执和业务记录保持，不重复采集、识别或登记。</p><label>原工单<select id="collection-reuse-order"><option value="">选择原工单</option></select></label><button id="collection-reuse-load" type="button">读取原工单收件</button><form id="collection-reuse-form"><label>已有收件<select id="collection-reuse-record" required><option value="">先读取原工单</option></select></label><label><input id="collection-reuse-sources" type="checkbox" checked>同时关联原工单已声明的来源（逐条核对当前站点、时间和摘要）</label><p id="collection-reuse-summary" class="hint"></p><button id="collection-reuse-submit" type="submit" disabled>关联到当前工单</button></form><p id="collection-reuse-state" role="status"></p></section>
+          <h3>来源与收件记录</h3><ol id="collection-timeline"></ol>
+          <h3>工单交接回执</h3><p id="collection-handoff-hint" class="hint"></p>
+          <div class="collection-toolbar" id="collection-handoff-controls"><label>接收人（已有成员）<input id="collection-recipient" list="collection-members" maxlength="200" autocomplete="off"></label><datalist id="collection-members"></datalist><div class="actions"><button id="collection-handoff" type="button">发起工单交接</button><button id="collection-accept" type="button">确认接收工单</button><button id="collection-cancel" type="button">撤回工单交接</button></div></div><ol id="collection-handoffs"></ol>
+
+        </div>
+      </section>
+<section class="card" data-workspace="review" hidden aria-labelledby="acceptance-workspace-title"><h2 id="acceptance-workspace-title" tabindex="-1">工单验收</h2><p id="acceptance-context" role="status">先打开需要核对的工单。</p><p><a href="#collection-title">选择或切换工单</a></p><section id="collection-acceptance" hidden aria-labelledby="acceptance-title"><h3 id="acceptance-title">工单验收与凭证</h3><p class="hint">结束采集后另行验收。只检查本工单引用的来源和已有回执，不自动固定证据、提交账本或重做采集。</p><label>本次检查的证据等级<select id="acceptance-policy"><option value="local">本机来源与收件回执</option><option value="pinned">每批次至少一份已有固定证据</option><option value="committed">每批次已有账本确认及确认的证据</option></select></label><div class="actions"><button id="acceptance-preview" type="button">检查工单</button><button id="acceptance-submit" type="button">保存验收检查</button><button id="acceptance-history" type="button">刷新验收记录</button></div><p id="acceptance-state" role="status">尚未检查。</p><div id="acceptance-summary"></div><ol id="acceptance-findings"></ol><div id="acceptance-list" class="actions"></div><div id="acceptance-decision" hidden><p class="hint">另一名已授权审计员独立确认。创建人与提交人不能自行通过；先核对当前版本与检查结果。</p><label>独立审核说明<textarea id="acceptance-reason" maxlength="1000" rows="2"></textarea></label><div class="actions"><button id="acceptance-approve" type="button">确认验收通过</button><button id="acceptance-reject" type="button">退回核对</button></div></div><button id="acceptance-certificate" type="button" hidden>导出验收凭证</button><p class="hint">已有固定或账本回执不等于当前远端可用性；凭证保留历史，后续变化会另作提示。检查范围不包含现场效果或完整物流交付验收。</p></section></section><section class="panel" data-workspace="review" hidden><section aria-labelledby="quality-title">
+          <h3 id="quality-title" class="workspace-anchor" tabindex="-1">站点来源数据检查</h3>
+          <p id="quality-scope" role="status">选择站点和物种后显示检查范围。</p>
+          <p class="hint">使用下方所选站点与物种，检查该站点保存的来源数据。工单验收另按所选工单的版本、来源与回执核对；本站点检查不代表工单验收通过。</p>
+          <button id="quality-check" type="button">检查所选站点的数据</button>
+          <p id="quality-state" role="status" aria-live="polite">尚未检查。选择站点和物种后，检查已保存的来源数据。</p>
+          <p class="hint">只检查本次范围：当前站点最近最多500条、累计1 MiB，单条不超过8 KiB，定位最多32条。其他物种只作范围提示；无法识别站点或超出单条上限的记录未计入。此检查不读取或核验图片实体，也不证明现场数据、预测或科学结论正确。</p>
+          <p id="quality-counts"></p><ul id="quality-issues"></ul>
+          <details><summary>查看需要核对的记录编号</summary><ol id="quality-findings"></ol></details>
+        </section></section>
+      <div class="filters overview-filter">
+        <label>
+          观测站点
+          <input id="filter-site" value="synthetic-area-A" maxlength="128" name="filter-site" autocomplete="off" spellcheck="false">
+        </label>
+        <label>
+          预测物种
+          <input id="filter-species" value="saithe" maxlength="128" name="filter-species" autocomplete="off" spellcheck="false">
+        </label>
+        <p id="overview-scope" class="overview-scope" data-workspace="overview" role="status">连接后显示图表的实际读取范围。</p>
+      </div>
+      <p id="status" class="status-strip" role="status">
+        尚未连接。首次使用请连接本地会话。
+      </p>
+      <details class="queue-panel" data-workspace="operations" hidden>
+        <summary>
+          待同步操作与冲突处理
+        </summary>
+        <p class="hint">离线操作保存在本机，重连后按原顺序、用原幂等键同步。冲突会保留原请求，请先核对，不要重复录入。</p>
+        <p id="queue-summary" class="workspace-anchor" tabindex="-1" role="status" aria-live="polite">登录后查看当前账户的同步进度。</p><label for="queue-filter">同步状态</label><select id="queue-filter"><option value="">全部</option><option value="manual">需处理</option><option value="waiting">等待同步</option><option value="ready">准备同步</option></select><select id="queue-list" aria-label="当前账户待同步操作" name="queue-list">
+        </select>
+        <button id="queue-diagnostics" type="button" disabled>导出同步诊断</button><p class="hint">仅包含同步状态与尝试次数，不含业务内容、附件或身份信息。</p><p id="queue-detail" style="white-space:pre-line" aria-live="polite">请选择一条记录查看处理建议。</p><button id="queue-retry">
+          重新核对并重试
+        </button>
+        <button id="queue-rebase">
+          核对最新状态并重建操作
+        </button>
+        <button id="queue-remove">
+          删除选中本地操作
+        </button>
+      </details>
+
+      <div class="overview-split">
+      <section data-workspace="overview" class="metrics workspace-anchor" id="observation-overview" tabindex="-1" aria-label="观测与预测">
+        <article>
+          <span class="metric-label">
+            已保存观测
+          </span>
+          <strong id="count">
+            —
+          </strong><small class="metric-context">当前范围已保存记录</small>
+        </article>
+        <article>
+          <span class="metric-label">
+            预测 CPUE
+          </span>
+          <strong id="prediction">
+            暂无预测
+          </strong><small class="metric-context">kg / 标准作业小时</small>
+        </article>
+        <article>
+          <span class="metric-label">
+            最近事件
+          </span>
+          <strong id="age">
+            无数据
+          </strong><small class="metric-context">来源观测的新鲜度</small>
+        </article>
+        <article>
+          <span class="metric-label">
+            本地待同步操作
+          </span>
+          <strong id="pending">
+            0
+          </strong><small class="metric-context">仅当前账户的本机队列</small>
+        </article>
+      </section>
+      <div class="grid" data-workspace-grid>
+        <section class="panel overview-primary-chart" data-workspace="overview">
+          <div class="chart-title-row"><div><p class="chart-kicker">OBSERVATIONS</p><h2>观测时序</h2></div><span id="chart-sample-count" class="chart-meta">未读取数据</span></div>
+          <div class="chart-stage"><div id="chart" role="img" aria-label="当前会话的分钟观测数"></div><div id="chart-empty" class="chart-empty"><svg width="56" height="40" viewBox="0 0 56 40" aria-hidden="true"><path d="M3 34h50M7 34V6M17 28v-8M27 28V12M37 28V17M47 28V8"/></svg><strong id="chart-empty-title">连接后查看实际观测</strong><p id="chart-empty-detail">连接本地会话后，读取当前站点和物种的数据。</p></div></div><p class="chart-caption">总数按当前读取范围统计；曲线最多显示最近 600 个时间点。</p>
+          <p id="forecast-note">
+            没有数据时保持空白。
+          </p>
+          <details>
+            <summary>
+              查看数据表
+            </summary>
+            <div class="scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">
+                      时间 UTC
+                    </th>
+                    <th scope="col">
+                      观测数
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="rows">
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </section>
+        <section class="panel" data-workspace="collection" hidden>
+          <h2 id="classification-title" class="workspace-anchor" tabindex="-1">上传鱼类图像</h2>
+          <p>
+            模型限定为 NorFisk 的 saithe 与 salmonid 两类；不能识别任意鱼种。输入应为单鱼裁剪图。
+          </p>
+          <form id="classify-form">
+            <input id="image" type="file" accept="image/png,image/jpeg,image/webp" required aria-label="鱼类图像" name="image" autocomplete="off" spellcheck="false">
+            <button>
+              运行本地识别
+            </button>
+          </form>
+          <pre id="classification" aria-live="polite">选择单鱼图片后开始识别</pre>
+          <p id="classification-owner" role="status" aria-live="polite" hidden></p>
+          <div class="actions"><button id="classification-origin" type="button" hidden>返回结果原工单</button><button id="classification-reuse" type="button" hidden>核对后复用现有结果</button></div>
+          <button id="record-classification" disabled>
+            登记本次分类观测
+          </button>
+          <p>
+            使用已核对的设备与工单归属，仅登记分类，不把一张照片当作鱼群数量；记录图片上限256KiB。
+            登记沿用本次识别开始时间，复用不会重记为当前时间；图片本身不证明拍摄时间，须核对目标工单窗口。
+          </p>
+        </section>
+      </div>
+      </div>
+      <div class="grid" data-workspace-grid>
+        <section class="panel" data-workspace="overview">
+          <h2>
+            海区与时间热力图
+          </h2>
+          <div class="chart-stage chart-stage-secondary"><div id="heatmap" class="data-chart" role="img" aria-label="海区与时间的观测数分布">
+          </div><p id="heatmap-empty" class="chart-empty-mini">当前范围暂无热力分布</p></div>
+          <details>
+            <summary>
+              热力图数据
+            </summary>
+            <div class="scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">
+                      时间 UTC
+                    </th>
+                    <th scope="col">
+                      海区
+                    </th>
+                    <th scope="col">
+                      观测数
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="heat-rows">
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </section>
+        <section class="panel" data-workspace="overview">
+          <h2>
+            地理分布
+          </h2>
+          <div class="chart-stage chart-stage-secondary"><div id="geography" class="data-chart" role="img" aria-label="按授权站点坐标绘制的地理分布">
+          </div><p id="geography-empty" class="chart-empty-mini">等待当前范围的站点信息</p></div>
+          <details>
+            <summary>
+              地理分布数据
+            </summary>
+            <div class="scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">
+                      站点
+                    </th>
+                    <th scope="col">
+                      经度
+                    </th>
+                    <th scope="col">
+                      纬度
+                    </th>
+                    <th scope="col">
+                      观测数
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="geo-rows">
+                </tbody>
+              </table>
+            </div>
+          </details>
+          <p id="geo-note">
+            尚未配置已授权的站点坐标，不生成虚假地图点。
+          </p>
+        </section>
+      </div>
+      <div class="grid" data-workspace-grid>
+        <section class="panel" data-workspace="trace" hidden>
+          <h2 id="batch-title" class="workspace-anchor" tabindex="-1">创建捕捞批次</h2>
+          <form id="batch-form">
+            <label>
+              批次编号
+              <input id="batch-id" pattern="[a-zA-Z0-9_-]{1,128}" required placeholder="batch-001" name="batch-id" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              物种
+              <input id="species" value="saithe" maxlength="128" required name="species" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              重量（克）
+              <input id="mass" type="number" min="1" step="1" value="1000" required name="mass" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              粗粒度海区
+              <input id="area" value="demo-area" maxlength="64" required name="area" autocomplete="off" spellcheck="false">
+            </label>
+            <button>
+              保存批次
+            </button>
+          </form>
+          <p>
+            批次创建后仍需单独核对链上状态。
+          </p>
+        </section>
+        <section class="panel" data-workspace="trace" hidden>
+          <h2>
+            批次溯源
+          </h2>
+          <div class="field-action">
+            <label>
+              选择批次
+              <select id="batch-list" name="batch-list">
+                <option value="">
+                  暂无批次
+                </option>
+              </select>
+            </label>
+            <button id="trace">
+              查询溯源
+            </button>
+          </div>
+          <nav class="field-action" aria-label="批次列表分页">
+            <button id="batch-first" type="button" disabled>返回首屏批次</button>
+            <button id="batch-prev" type="button" disabled>上一页批次</button>
+            <button id="batch-next" type="button" disabled>下一页批次</button>
+          </nav>
+          <p id="batch-page" role="status" aria-live="polite">连接后读取批次列表。</p>
+          <div class="field-action">
+            <label>
+              按编号查找批次
+              <input id="lookup-id" maxlength="128" name="lookup-id" autocomplete="off" spellcheck="false">
+            </label>
+            <button id="lookup-batch">
+              查找批次
+            </button>
+          </div>
+          <label>
+            已保存证据
+            <select id="evidence-list" name="evidence-list">
+              <option value="">
+                请查询批次
+              </option>
+            </select>
+          </label>
+          <form id="evidence-form" tabindex="-1">
+            <label>
+              证据文件（≤256 KiB）
+              <input type="file" id="evidence-file" required name="evidence-file" autocomplete="off" spellcheck="false">
+            </label>
+            <button>
+              加密保存证据
+            </button>
+          </form>
+          <div class="actions">
+            <button id="complete-evidence">
+              固定证据并核对存证
+            </button>
+            <button id="pin">
+              保存远端副本
+            </button>
+            <button id="anchor">
+              提交防篡改存证
+            </button>
+            <button id="verify">
+              核验原件与存证
+            </button>
+            <button id="download-evidence">
+              下载原始证据
+            </button>
+          </div>
+          <p class="hint">每类记录每页最多 100 条；重新查询回到首页。汇总数量覆盖整个批次。</p><button id="trace-more-evidence" disabled>下一页证据</button><button id="trace-more-ledger" disabled>下一页链操作</button><button id="trace-more-issues" disabled>下一页冷链记录</button>
+          <aside id="batch-disposition" class="batch-disposition" aria-labelledby="batch-disposition-title" hidden><h3 id="batch-disposition-title">批次处置摘要</h3><p id="batch-disposition-status" role="status"></p><ul id="batch-disposition-items"></ul><p class="hint">基于本次溯源快照和当前账户队列；登记、本机同步与链上核验分别确认。</p></aside>
+          <pre id="trace-result" tabindex="-1" aria-live="polite">尚未查询</pre>
+          <p id="ledger-result" tabindex="-1">
+            尚未核对链上状态
+          </p>
+          <button id="verify-batch">
+            核对批次链上状态
+          </button>
+          <label>
+            冷链异常
+            <select id="cold-issue-list" name="cold-issue-list">
+            </select>
+          </label>
+          <form id="resolve-cold-form" tabindex="-1">
+            <label>
+              处置决定
+              <select id="cold-disposition" name="cold-disposition">
+                <option value="release">
+                  检查后解除暂停送达
+                </option>
+                <option value="recall">
+                  召回此批次
+                </option>
+              </select>
+            </label>
+            <label>
+              处置依据
+              <input id="cold-reason" minlength="3" maxlength="1000" required name="cold-reason" autocomplete="off" spellcheck="false">
+            </label>
+            <button>
+              保存冷链处置
+            </button>
+            <button id="retry-delivery" type="button">
+              重试本批次送达
+            </button>
+          </form>
+        </section>
+      </div>
+      <section id="lineage-view" class="panel lineage-view" data-workspace="trace" hidden>
+<h2>上下游与影响范围</h2><p>只读查看当前可见本地记录的上游来源和下游关联，供人工核对影响范围。不包含未同步操作，不是链上核验或自动召回。</p>
+<div class="lineage-controls"><label>谱系起点批次<input data-lineage-root maxlength="128" autocomplete="off" placeholder="留空使用当前选择批次"></label><label>读取方向<select data-lineage-direction><option value="both">上下游</option><option value="ancestors">仅上游来源</option><option value="descendants">仅下游影响</option></select></label><label>显示层级<input data-lineage-depth type="number" min="1" max="12" value="8"></label></div>
+<div class="actions"><button id="lineage-load" data-lineage-load type="button">只读查看上下游</button><button id="lineage-clear" type="button">清空谱系查询</button></div><p data-lineage-status role="status"></p><div data-lineage-result hidden></div></section>
+<section class="panel" data-workspace="trace" hidden>
+        <h2>
+          流转、交接与冷链
+        </h2>
+        <p>
+          针对上方选定批次操作。机构切换仅用于本地演示。
+        </p>
+        <div class="grid">
+          <form id="transition-form" class="form-card">
+            <h3>
+              更新流转状态
+            </h3>
+            <label>
+              下一状态
+              <select id="next-state" name="next-state">
+                <option value="LANDED">
+                  已上岸
+                </option>
+                <option value="PROCESSED">
+                  已加工
+                </option>
+                <option value="IN_COLD_CHAIN">
+                  进入冷链
+                </option>
+                <option value="DELIVERED">
+                  已送达
+                </option>
+                <option value="RECALLED">
+                  召回
+                </option>
+              </select>
+            </label>
+            <button>
+              保存状态变更
+            </button>
+          </form>
+          <form id="transfer-form" class="form-card">
+            <h3>
+              发起机构交接
+            </h3>
+            <label>
+              交给机构
+              <select id="transfer-org" name="transfer-org">
+                <option value="Org2MSP">
+                  加工机构
+                </option>
+                <option value="Org1MSP">
+                  捕捞机构
+                </option>
+              </select>
+            </label>
+            <button>
+              发起交接
+            </button>
+          </form>
+          <div class="form-card transfer-receipt">
+            <h3>
+              接收机构交接
+            </h3>
+            <button id="load-transfers">
+              刷新待接收交接
+            </button>
+            <label>
+              待接收交接
+              <select id="transfer-list" name="transfer-list">
+              </select>
+            </label>
+            <p id="transfer-state">
+              暂无交接信息
+            </p>
+            <form id="accept-form">
+              <label>
+                交接申请编号
+                <input id="proposal-id" required maxlength="128" name="proposal-id" autocomplete="off" spellcheck="false">
+              </label>
+              <button>
+                接收交接
+              </button>
+            </form>
+          </div>
+          <form id="transform-form" class="form-card">
+            <h3>
+              加工、拆分与合批
+            </h3>
+            <label>
+              加工输入批次（可多选合批）
+              <select id="transform-parents" multiple size="4" name="transform-parents">
+              </select>
+            </label>
+            <button id="transform-clear-parents" type="button">清除父批次选择</button>
+            <p class="hint">仅加工机构可使用已上岸或已加工的同物种批次。失效选择保留提示，核对后清除重选；留空时使用当前批次。</p>
+            <div id="transform-outputs">
+              <div class="output-row">
+                <label>
+                  加工后批次编号
+                  <input id="output-id" required pattern="[A-Za-z0-9_-]{1,128}" name="output-id" autocomplete="off" spellcheck="false">
+                </label>
+                <label>
+                  产出（整数克）
+                  <input id="output-mass" type="number" min="1" step="1" required name="output-mass" autocomplete="off" spellcheck="false">
+                </label>
+              </div>
+            </div>
+            <button id="add-output" type="button">
+              增加产出批次
+            </button>
+            <label>
+              损耗（整数克）
+              <input id="loss-mass" type="number" min="0" step="1" required name="loss-mass" autocomplete="off" spellcheck="false">
+            </label>
+            <button>
+              登记加工产出
+            </button>
+          </form>
+          <form id="cold-form" class="form-card">
+            <h3>
+              记录冷链温度
+            </h3>
+            <label>
+              记录开始
+              <input id="cold-start" type="datetime-local" required name="cold-start" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              记录结束
+              <input id="cold-end" type="datetime-local" required name="cold-end" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              设备或手工记录编号
+              <input id="cold-device" required maxlength="128" name="cold-device" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              最低温度 °C
+              <input id="cold-min" type="number" step="0.1" min="-100" max="100" required name="cold-min" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              最高温度 °C
+              <input id="cold-max" type="number" step="0.1" min="-100" max="100" required name="cold-max" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              本批次允许下限 °C
+              <input id="allowed-min" type="number" step="0.1" min="-100" max="100" required name="allowed-min" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              本批次允许上限 °C
+              <input id="allowed-max" type="number" step="0.1" min="-100" max="100" required name="allowed-max" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              关联观测
+              <select id="cold-sources" multiple size="3" name="cold-sources">
+              </select>
+            </label>
+            <label>
+              关联当前预测
+              <select id="cold-forecast" name="cold-forecast">
+                <option value="">
+                  不关联
+                </option>
+              </select>
+            </label>
+            <label class="check-label">
+              <input id="cold-manual" type="checkbox" name="cold-manual" autocomplete="off" spellcheck="false">
+              明确作为手工记录，不关联观测或预测
+            </label>
+            <button>
+              保存冷链记录
+            </button>
+          </form>
+        </div>
+        <button id="sync-ledger">
+          同步并核对链上流转
+        </button>
+      </section>
+      <section class="panel" data-workspace="collection" hidden>
+        <h2 id="data-entry-title" class="workspace-anchor" tabindex="-1">观测与渔获数据</h2>
+        <p>
+          合成示例与现场数据应使用不同站点。照片分类不等于独立鱼群计数。
+        </p>
+
+        <div class="result-actions"><button id="fill-synthetic" type="button">填入合成示例</button><span class="hint">只填表，不提交；站点示例与现场数据分开保存。</span></div><button id="load-data">
+          刷新站点、设备与来源观测
+        </button>
+        <fieldset class="source-filters">
+          <legend>渔获来源筛选 · 当前页</legend>
+          <label>搜索来源<input id="catch-source-query" type="search" maxlength="80" placeholder="设备、事件编号或日期" autocomplete="off"></label>
+          <label>来源类型<select id="catch-source-type"><option value="all">全部类型</option><option value="fish.observation">鱼类观测</option><option value="environment.reading">环境读数</option></select></label>
+          <label class="source-image-toggle"><input id="catch-source-images" type="checkbox">仅有原图</label>
+          <button id="catch-source-reset" type="button">清除来源筛选</button>
+          <p id="catch-source-filter-state" class="hint" role="status">当前页匹配 0 / 0 条。</p>
+        </fieldset>
+        <div class="grid">
+          <form id="site-form" class="form-card">
+            <h3>
+              观测站点
+            </h3>
+            <label>
+              站点编号
+              <input id="site-id" required maxlength="128" name="site-id" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              站点名称
+              <input id="site-name" required maxlength="128" name="site-name" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              经度
+              <input id="site-lon" type="number" step="0.0001" min="-180" max="180" required name="site-lon" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              纬度
+              <input id="site-lat" type="number" step="0.0001" min="-90" max="90" required name="site-lat" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              数据来源
+              <select id="site-source" name="site-source">
+                <option value="synthetic">
+                  合成示例（非真实作业位置）
+                </option>
+                <option value="field">
+                  已授权现场数据
+                </option>
+              </select>
+            </label>
+            <button>
+              保存站点
+            </button>
+          </form>
+          <form id="device-form" class="form-card" aria-describedby="device-prerequisite">
+            <h3>
+              设备登记
+            </h3>
+            <p id="device-prerequisite" class="hint" role="status">连接后读取可用站点。</p>
+            <label>
+              设备编号
+              <input id="device-id" required maxlength="128" name="device-id" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              所属站点
+              <select id="device-site" required name="device-site">
+              </select>
+            </label>
+            <button>
+              登记设备
+            </button>
+          </form>
+          <form id="environment-form" tabindex="-1" class="form-card" aria-describedby="environment-prerequisite">
+            <h3>
+              环境读数
+            </h3>
+            <p id="environment-prerequisite" class="hint" role="status">连接后读取可用设备。</p>
+            <label>
+              录入设备
+              <select id="reading-device" required name="reading-device">
+              </select>
+            </label>
+            <label>
+              环境观测时间
+              <input id="reading-time" type="datetime-local" required name="reading-time" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              水温 °C
+              <input id="reading-temperature" type="number" min="-5" max="45" step="0.1" required name="reading-temperature" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              盐度 PSU
+              <input id="reading-salinity" type="number" min="0" max="50" step="0.1" required name="reading-salinity" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              浑浊度 NTU
+              <input id="reading-turbidity" type="number" min="0" max="4000" step="0.1" required name="reading-turbidity" autocomplete="off" spellcheck="false">
+            </label>
+            <button>
+              保存环境读数
+            </button>
+          </form>
+          <form id="catch-form" class="form-card">
+            <h3>
+              渔获与作业量
+            </h3>
+            <p id="catch-prerequisite" class="hint" role="status">刷新来源观测后，选择关联的鱼类与环境记录。</p>
+            <label>
+              预测起点（此前30分钟为特征窗口）
+              <input id="catch-origin" type="datetime-local" required name="catch-origin" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              实际渔获确认时间
+              <input id="catch-confirmed" type="datetime-local" required name="catch-confirmed" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              实际渔获（千克）
+              <input id="catch-kg" type="number" min="0" step="0.01" required name="catch-kg" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              标准化作业量（小时）
+              <input id="catch-effort" type="number" min="0.001" step="0.001" required name="catch-effort" autocomplete="off" spellcheck="false">
+            </label>
+            <label>
+              关联鱼类与环境观测（至少各一条）
+              <select id="catch-sources" multiple size="5" required name="catch-sources">
+              </select>
+            </label>
+            <label>
+              样本来源
+              <select id="catch-source" name="catch-source">
+                <option value="field">
+                  现场记录
+                </option>
+                <option value="synthetic">
+                  合成示例
+                </option>
+              </select>
+            </label>
+            <button>
+              保存渔获记录
+            </button>
+          </form>
+          <form id="data-import-form" class="form-card">
+            <h3>
+              批量导入
+            </h3>
+            <label>
+              批量导入类型
+              <select id="import-kind" name="import-kind">
+                <option value="events">
+                  设备观测与环境事件
+                </option>
+                <option value="labels">
+                  已准备的成熟预测样本
+                </option>
+              </select>
+            </label>
+            <label>
+              JSON 文件（最多400KiB）
+              <input id="import-file" type="file" accept="application/json,.json" required name="import-file" autocomplete="off" spellcheck="false">
+            </label>
+            <button>
+              校验并导入
+            </button>
+            <p>
+              观测文件含 events 数组；成熟样本文件含 labels 数组。格式见项目事件与标签契约，失败时不会部分写入。
+            </p>
+          </form>
+        </div>
+        <p class="hint">来源观测每页最多 500 条，翻页不会提交操作；有已选来源时请先完成操作或取消选择。</p><button id="source-more" disabled>下一页来源观测</button>
+<label>
+          可下载原图的观测
+          <select id="source-image-list" name="source-image-list">
+          </select>
+        </label>
+        <p id="source-image-state" role="status">请先选择要下载的原图。</p><button id="download-observation" disabled>
+          下载观测原图
+        </button>
+        <h3>
+          预测发布状态
+        </h3>
+        <button id="forecast-status-button">
+          查看预测状态与来源
+        </button>
+        <pre id="forecast-detail">尚未查询</pre>
+        <section aria-label="来源观测结果"><h3>当前页来源观测</h3><p>按上方来源筛选查看与导出；不包含未载入页。</p><div class="result-actions"><button id="export-source-json" type="button">导出当前页 JSON</button><button id="export-source-csv" type="button">导出当前页 CSV</button></div><div class="source-export-table"><table><thead><tr><th>来源编号</th><th>类型</th><th>观测时间</th><th>设备</th></tr></thead><tbody id="source-export-rows"></tbody></table></div><p id="source-export-state" role="status">连接并刷新来源观测后查看。</p></section><p id="data-result" role="status">
+          尚未录入
+        </p>
+      </section>
+      <section class="panel" data-workspace="operations" hidden>
+        <h2>
+          识别与复核观测
+        </h2>
+        <button id="monitor">
+          查看模型漂移与耗时
+        </button>
+        <pre id="monitor-result">尚未查询</pre>
+      </section>
+      <section class="panel" data-workspace="review" hidden>
+        <h2>
+          人工复核与训练回流
+        </h2>
+        <p>
+          人工提交后进入独立训练候选集，不自动替换线上模型。
+        </p>
+        <details><summary>样本来源与标注规则</summary><p>按不确定性和图像多样性选样，保留随机哨兵；为避免诱导标注，不展示模型猜测。</p></details>
+        <button id="export-training">
+          下载已复核训练集
+        </button>
+        <button id="download-review">
+          下载当前复核图像
+        </button>
+        <button id="load-reviews">
+          载入待复核样本
+        </button>
+        <label>
+          待复核样本
+          <select id="review-list" name="review-list">
+            <option value="">
+              暂无样本
+            </option>
+          </select>
+        </label>
+        <img width="640" height="360" loading="lazy" id="review-image" alt="待人工确认物种的水下图像" hidden>
+        <form id="review-form">
+          <label>
+            人工物种标签
+            <select id="review-label" required name="review-label">
+              <option value="">
+                请选择
+              </option>
+              <option value="saithe">
+                绿青鳕 saithe
+              </option>
+              <option value="salmonid">
+                鲑鳟类 salmonid
+              </option>
+              <option value="unknown">
+                无法确定 / 非目标
+              </option>
+            </select>
+          </label>
+          <label>
+            采集组（同航次或视频用同一编号）
+            <input id="review-group" pattern="[a-zA-Z0-9_-]{3,128}" required placeholder="trip-20261010-camera01" name="review-group" autocomplete="off" spellcheck="false">
+          </label>
+          <button>
+            提交人工复核
+          </button>
+        </form>
+        <p id="review-state" role="status">
+          尚未加载
+        </p>
+      </section>
+      <section class="panel" data-workspace="operations" hidden>
+        <h2 id="operations-title" tabindex="-1">
+          运行状态与故障处理
+        </h2>
+        <button id="load-operations">
+          检查运行状态
+        </button>
+        <p id="operations-state" role="status">
+          尚未检查
+        </p>
+        <div id="operations-workload" aria-live="polite"></div>
+        <label>
+          告警
+          <select id="incident-list" name="incident-list">
+          </select>
+        </label>
+        <label>
+          处理说明
+          <input id="incident-note" minlength="3" maxlength="500" placeholder="已核查的情况与处理措施" name="incident-note" autocomplete="off" spellcheck="false">
+        </label>
+        <button id="ack-incident">
+          确认接手告警
+        </button>
+        <label>
+          待确认链上操作
+          <select id="ledger-job-list" name="ledger-job-list">
+          </select>
+        </label>
+        <label>需要人工核对的投递事件<select id="outbox-list" name="outbox-list"></select></label><button id="outbox-next" disabled>下一页待核对事件</button><button id="retry-outbox" disabled>记录核对说明并重试原事件</button><button id="outbox-confirm-published" disabled>已核对接收端：确认已投递</button><button id="outbox-confirm-absent" disabled>已核对接收端：确认未投递</button><p>结果未知时先核对接收端记录。确认未投递后，才可重试原事件；原请求和核对说明会保留。</p>
+        <button id="retry-ledger-job">
+          核对原请求并重试
+        </button>
+        <p>
+          接手告警不代表故障恢复，恢复以检查结果为准。未知结果先查原回执。
+        </p>
+      </section>
+      <details class="panel">
+        <summary>数据与存证说明</summary>
+        <p>
+          公开分类报告、合成预测回放与现场数据需分别核对。未配置 IPFS/Fabric 时无法提供存证回执。
+        </p>
+        <p id="performance">
+          等待浏览器性能数据
+        </p>
+      </details>
+    </main>
+    <script src="/app.js?v=28" defer>
+    </script>
+  </body>
+</html>

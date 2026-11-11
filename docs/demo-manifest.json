@@ -1,0 +1,36 @@
+{
+  "delivery": "Marine Demo 2026-10-12",
+  "applicationCommit": "2c0b9bbd8eb97fd2a9f5b70d7e100fff7bbfee1b",
+  "deployment": "existing-local-environment",
+  "origin": "http://127.0.0.1:8871/",
+  "organization": "Org2MSP",
+  "siteId": "forecast-cycle-1791771257",
+  "deviceId": "ui-final-camera",
+  "speciesId": "saithe",
+  "image": "data/processed/norfisk/saithe/saithe.000262.png",
+  "forecastId": "bc5ee50fbc9993e88467a6877761592d78fef5499e7a025f60059485c98b661f",
+  "forecastIsHistorical": true,
+  "batchIds": [
+    "user-final-20261012",
+    "user-final-split-a",
+    "user-final-split-b",
+    "user-final-merged"
+  ],
+  "finalBatchId": "user-final-merged",
+  "evidenceIds": [
+    "ce216644-561c-4a79-bdd2-6b748c20545d",
+    "0241524a-b9ad-4f31-ad3f-1a669acf0801"
+  ],
+  "expected": {
+    "finalState": "DELIVERED",
+    "massGrams": 850,
+    "unresolvedColdIssues": 0,
+    "pendingChainOperations": 0,
+    "committedEvidence": 2,
+    "replicasPerEvidence": 2,
+    "matureLabelsAtDelivery": 151
+  },
+  "reuseOnly": true,
+  "runtimeAssetsIncludedInGit": false,
+  "guide": "docs/demo-delivery.md"
+}

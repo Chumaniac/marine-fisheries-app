@@ -1,0 +1,5 @@
+{
+  "conditions": {"hardware": null, "camera": null, "site": null, "season": null, "waterConditions": null, "modelSha256": null, "datasetSha256": null},
+  "targets": {"map": null, "countMae": null, "endToEndP95Ms": null, "rssPeakBytes": null, "temperatureC": null, "powerW": null},
+  "authorizationReference": null
+}

@@ -1,0 +1,99 @@
+[
+  {
+    "schemaVersion": "1.0",
+    "eventId": "00000000-0000-4000-8000-000000000001",
+    "eventType": "fish.observation",
+    "tenantId": "synthetic-tenant",
+    "siteId": "synthetic-site",
+    "deviceId": "synthetic-device",
+    "sequenceNo": 1,
+    "occurredAt": "2026-10-09T02:00:00Z",
+    "receivedAt": "2026-10-09T02:00:10Z",
+    "clockUncertaintyMs": 100,
+    "traceId": "synthetic-trace-01",
+    "data": {
+      "trackId": "synthetic-track-01",
+      "speciesId": "demo-species-01",
+      "confidence": 0.88,
+      "countMethod": "track",
+      "qualityScore": 0.9,
+      "exposureSeconds": 60,
+      "modelVersion": "b0-design-v1",
+      "preprocessVersion": "prep-design-v1",
+      "evidenceId": "synthetic-evidence-01"
+    }
+  },
+  {
+    "schemaVersion": "1.0",
+    "eventId": "00000000-0000-4000-8000-000000000002",
+    "eventType": "environment.reading",
+    "tenantId": "synthetic-tenant",
+    "siteId": "synthetic-site",
+    "deviceId": "synthetic-device",
+    "sequenceNo": 2,
+    "occurredAt": "2026-10-09T02:00:00Z",
+    "receivedAt": "2026-10-09T02:00:10Z",
+    "clockUncertaintyMs": 100,
+    "traceId": "synthetic-trace-01",
+    "data": {
+      "temperatureC": 20.5,
+      "salinityPsu": 32.1,
+      "turbidityNtu": 8,
+      "sensorQuality": "valid",
+      "calibrationVersion": "synthetic-calibration"
+    }
+  },
+  {
+    "schemaVersion": "1.0",
+    "eventId": "00000000-0000-4000-8000-000000000003",
+    "eventType": "forecast.updated",
+    "tenantId": "synthetic-tenant",
+    "siteId": "synthetic-site",
+    "deviceId": "synthetic-service",
+    "sequenceNo": 3,
+    "occurredAt": "2026-10-09T02:00:00Z",
+    "receivedAt": "2026-10-09T02:00:10Z",
+    "clockUncertaintyMs": 100,
+    "traceId": "synthetic-trace-01",
+    "data": {
+      "forecastId": "synthetic-forecast-01",
+      "cellId": "synthetic-cell-A",
+      "speciesId": "demo-species-01",
+      "originAt": "2026-10-09T02:00:00Z",
+      "horizonMinutes": 60,
+      "target": "cpue",
+      "point": 12.4,
+      "lower": 8.1,
+      "upper": 17.8,
+      "coverage": 0.95,
+      "unit": "kg/standardizedHour",
+      "revision": 1,
+      "modelVersion": "weighted-regression-design-v1",
+      "featureSnapshotId": "synthetic-feature-01",
+      "sourceWatermark": "2026-10-09T01:58:30Z",
+      "validUntil": "2026-10-09T02:05:00Z"
+    }
+  },
+  {
+    "schemaVersion": "1.0",
+    "eventId": "00000000-0000-4000-8000-000000000004",
+    "eventType": "trace.anchored",
+    "tenantId": "synthetic-tenant",
+    "siteId": "synthetic-site",
+    "deviceId": "synthetic-service",
+    "sequenceNo": 4,
+    "occurredAt": "2026-10-09T02:00:00Z",
+    "receivedAt": "2026-10-09T02:00:10Z",
+    "clockUncertaintyMs": 100,
+    "traceId": "synthetic-trace-01",
+    "data": {
+      "batchId": "synthetic-batch-01",
+      "evidenceId": "synthetic-evidence-01",
+      "manifestCommitment": "1111111111111111111111111111111111111111111111111111111111111111",
+      "channelId": "trace-common",
+      "txId": "2222222222222222222222222222222222222222222222222222222222222222",
+      "blockNumber": 10,
+      "validationCode": "VALID"
+    }
+  }
+]

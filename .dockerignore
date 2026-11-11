@@ -1,0 +1,11 @@
+.git
+.runtime
+.venv
+artifacts
+data
+**/node_modules
+**/__pycache__
+**/target
+*.key
+*.pem
+.env*

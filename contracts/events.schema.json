@@ -1,0 +1,389 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:marine-fisheries:events:v1",
+  "title": "海洋渔业领域事件初版契约",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "eventType",
+    "tenantId",
+    "siteId",
+    "deviceId",
+    "sequenceNo",
+    "occurredAt",
+    "receivedAt",
+    "clockUncertaintyMs",
+    "traceId",
+    "data"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "eventType": {
+      "enum": [
+        "fish.observation",
+        "environment.reading",
+        "forecast.updated",
+        "trace.anchored"
+      ]
+    },
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "siteId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "deviceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "sequenceNo": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "receivedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "clockUncertaintyMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 86400000
+    },
+    "traceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "fish.observation"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "trackId",
+              "speciesId",
+              "confidence",
+              "countMethod",
+              "qualityScore",
+              "exposureSeconds",
+              "modelVersion",
+              "preprocessVersion",
+              "evidenceId"
+            ],
+            "properties": {
+              "trackId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "speciesId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "countMethod": {
+                "enum": [
+                  "track",
+                  "maxN",
+                  "classificationOnly"
+                ]
+              },
+              "qualityScore": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "exposureSeconds": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "modelVersion": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "preprocessVersion": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "evidenceId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "environment.reading"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "temperatureC",
+              "salinityPsu",
+              "turbidityNtu",
+              "sensorQuality",
+              "calibrationVersion"
+            ],
+            "properties": {
+              "temperatureC": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "salinityPsu": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "turbidityNtu": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "sensorQuality": {
+                "enum": [
+                  "valid",
+                  "suspect",
+                  "invalid"
+                ]
+              },
+              "calibrationVersion": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "forecast.updated"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "forecastId",
+              "cellId",
+              "speciesId",
+              "originAt",
+              "horizonMinutes",
+              "target",
+              "point",
+              "lower",
+              "upper",
+              "coverage",
+              "unit",
+              "revision",
+              "modelVersion",
+              "featureSnapshotId",
+              "sourceWatermark",
+              "validUntil"
+            ],
+            "properties": {
+              "forecastId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "cellId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "speciesId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "originAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "Z$"
+              },
+              "horizonMinutes": {
+                "enum": [
+                  30,
+                  60,
+                  120
+                ]
+              },
+              "target": {
+                "const": "cpue"
+              },
+              "point": {
+                "type": "number",
+                "minimum": 0
+              },
+              "lower": {
+                "type": "number",
+                "minimum": 0
+              },
+              "upper": {
+                "type": "number",
+                "minimum": 0
+              },
+              "coverage": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "unit": {
+                "const": "kg/standardizedHour"
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "modelVersion": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "featureSnapshotId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "sourceWatermark": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "Z$"
+              },
+              "validUntil": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "Z$"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "trace.anchored"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "batchId",
+              "evidenceId",
+              "manifestCommitment",
+              "channelId",
+              "txId",
+              "blockNumber",
+              "validationCode"
+            ],
+            "properties": {
+              "batchId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "evidenceId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "manifestCommitment": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "channelId": {
+                "enum": [
+                  "trace-common",
+                  "trade-private",
+                  "origin-audit"
+                ]
+              },
+              "txId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "blockNumber": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "validationCode": {
+                "const": "VALID"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
