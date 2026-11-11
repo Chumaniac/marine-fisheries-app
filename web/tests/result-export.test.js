@@ -1,3 +1,4 @@
+import { geographyCsv } from "../src/result-export.js";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { sourceExport, sourceCsv, sourceScopeMatches } from "../src/result-export.js";
@@ -37,4 +38,10 @@ test('source export refuses a changed site or authenticated scope',()=>{
  assert.equal(sourceScopeMatches(binding,{scopeHash:'account-a'},'site-b'),false);
  assert.equal(sourceScopeMatches(binding,{scopeHash:'account-b'},'site-a'),false);
  assert.equal(sourceScopeMatches(binding,null,'site-a'),false);
+});
+
+test("map export keeps signed coordinates numeric, unknown counts empty, and site names literal", () => {
+ const csv=geographyCsv([{siteId:' =1+1',longitude:-73.5,latitude:41.2,count:null,dataSource:'synthetic',payload:'omit-secret'}]);
+ assert.ok(csv.includes(`"' =1+1","-73.5","41.2","","合成"`));
+ assert.ok(!csv.includes('omit-secret'));
 });

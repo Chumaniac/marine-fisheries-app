@@ -1,4 +1,4 @@
-import {sourceExport,sourceCsv,sourceScopeMatches} from './result-export.js';
+import {sourceExport,sourceCsv,sourceScopeMatches,geographyCsv} from './result-export.js';
 import {createOperationsView,validOperationsSummary,validOutboxPage,validLedgerStatus} from './operations-view.js';
 import {createLineageView} from './lineage.js';
 import {createCollectionInputGuard,inputMetadataKey} from './collection-input.js';
@@ -27,7 +27,7 @@ const chartText=themeStyle.getPropertyValue('--muted-foreground').trim();
 const chartLine=themeStyle.getPropertyValue('--border').trim();
 const observationAgeFormat=new Intl.RelativeTimeFormat('zh-CN',{numeric:'always'});
 echarts.registerTheme('marine-light',{color:[chartInk],backgroundColor:'transparent',textStyle:{fontFamily:themeStyle.fontFamily,color:themeStyle.getPropertyValue('--muted-foreground').trim()},animation:false,tooltip:{backgroundColor:themeStyle.getPropertyValue('--card').trim(),borderColor:chartLine,textStyle:{color:themeStyle.getPropertyValue('--foreground').trim()}},categoryAxis:{axisLine:{lineStyle:{color:chartLine}},axisLabel:{color:chartText},nameTextStyle:{color:chartText},axisTick:{show:false}},valueAxis:{splitLine:{lineStyle:{color:chartLine}},axisLabel:{color:chartText},nameTextStyle:{color:chartText},axisLine:{show:false}}});
-let chart=null,heatmap=null,geography=null,lastOverview=null;
+let chart=null,heatmap=null,geography=null,lastOverview=null,overviewOwner=null;
 let lineageView=null;
 let operationsView=null;
 function ensureOperationsView(){return operationsView??=createOperationsView({root:$('operations-workload'),getScope:()=>actor});}
@@ -113,15 +113,25 @@ function draw(data,cached=false){
  serverDashboard=data;batchPageCached=cached;
  visibleBatches=projectBatches(data.batches,pendingProjection.filter(item=>!item.deliveryResult),actor);
  data={...data,batches:visibleBatches};renderBatchPage();
- lastOverview=data;if(workspaces.current==='overview')paintOverview(data);
+ overviewOwner=actor?.scopeHash;lastOverview=data;if(workspaces.current==='overview')paintOverview(data);
  const selected=$('batch-list').value||evidenceSelection?.batchId;$('batch-list').replaceChildren(...data.batches.map(b=>{const option=document.createElement('option');option.value=b.batchId;option.textContent=`${b.batchId} · ${stateNames[b.state]||b.state}${b.openColdIssues?' · 暂停送达':''}${b.localConflict?'（需处理冲突）':b.localPending?'（待同步）':''}`;return option;}));if(data.batches.some(b=>b.batchId===selected))$('batch-list').value=selected;else if(selected)resetBatchTrace();currentEvidence=evidenceSelection?.batchId===$('batch-list').value?evidenceSelection.evidenceId:undefined;renderTransformParents();if(cached)traceContext=null;renderBatchDisposition();
  status(cached?'缓存快照 · 请刷新核对服务状态和预测有效期。':`${mode==='weak'?'弱网':'已连接'} · ${observationFreshness(data)} · 服务端待投递 ${data.pendingEvents}${pendingProjection.some(i=>i.blocked)?' · 有操作需处理，请展开待同步操作':''}`);
 }
 function renderOverviewScope(data){
  const same=data&&data.siteId===$('filter-site').value&&data.speciesId===$('filter-species').value;
+ $('export-geo').disabled=!same||!actor||!overviewOwner||overviewOwner!==actor.scopeHash||!data?.siteLocations?.length;
  const label=data?`图表读取范围：${data.siteId||'站点未记录'} · ${data.speciesId||'物种未记录'}${same?'':'；当前筛选输入已变化，刷新后才会更新。'}`:'连接后显示图表的实际读取范围。';
  if($('overview-scope').textContent!==label)$('overview-scope').textContent=label;
 }
+$('export-geo').addEventListener('click',()=>{
+ const snapshot=lastOverview;
+ renderOverviewScope(snapshot);
+ if($('export-geo').disabled)return;
+ const contents=geographyCsv(snapshot.siteLocations);
+ const url=URL.createObjectURL(new Blob([contents],{type:'text/csv;charset=utf-8'}));
+ const link=document.createElement('a');link.href=url;link.download='marine-map-snapshot.csv';link.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
 for(const id of ['filter-site','filter-species'])$(id).addEventListener('input',()=>renderOverviewScope(lastOverview));
 function renderOverviewEmpty(data=null,unavailable=false){
  const set=(id,value)=>{if($(id).textContent!==value)$(id).textContent=value;};
