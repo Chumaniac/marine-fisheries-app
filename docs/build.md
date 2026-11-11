@@ -41,4 +41,4 @@ uv pip sync --python .venv/bin/python requirements.lock
 
 本地构建仅作临时签名；没有 Apple 开发者签名/公证承诺。发布需附运行时版本、源码提交与 SHA-256 校验和，第三方许可随实际运行包一起保留。
 
-运行包会读取实际 Node/Python/原生库的 Mach-O 最低系统版本，取其与原生窗口13.0的较高值写入应用信息，不把构建工具版本当成系统要求。当前 Node 运行时最低13.5，NumPy 运行库最低14.0；墨评 OCR 显式以13.0为目标编译。具体发布包的最低版本以 source-manifest.json 和应用信息为准；本机验收不等于所有其他系统版本均经过实机验收。
+运行包从实际 Mach-O 部署目标计算最低系统版本，当前 Apple Silicon 包最低 macOS 14.0。NumPy 原生运行库最低14.0。具体下载以 source-manifest.json 与应用信息为准。本机验收不等于其他系统版本已实机验收。

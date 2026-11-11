@@ -1,26 +1,8 @@
-# 本地系统运行说明
+# 本地系统与可选外部链路
 
-**已有演示交付环境请优先使用[演示交付指南](demo-delivery.md)**，不要重新执行本页的首次安装、网络初始化、数据播种或训练步骤。以下安装命令仅供新环境建设参考。
+普通使用优先看[使用指南](user-guide.md)：Releases 的桌面包包含本地运行时；源码启动只需 Python 3.12、uv 和 `requirements.local.lock`。前端修改才需要 Node/pnpm。数据保存在私人 SQLite，不要求 Docker、Java、Kafka 或 Fabric。完整独立程序的打包见[构建说明](build.md)。
 
-此版本用于闭源开发、集成验证与展示。默认端口只绑定回环地址，不能直接当公网部署模板。`showcase/` 是保留的初始合成展示；`web/` 才是连接实际 API 的应用。
-
-## 环境与安装
-
-需要 Python 3.12、Node 22+、pnpm、JDK 17+、Maven、Docker。设定 `JAVA_HOME` 为实际 JDK 目录。当前已在 Apple ARM64、Python 3.12.9、Node 24.19.0、JDK 26 上执行本地验证；JVM 产物以 Java 17 编译。Python 依赖精确版本见 `requirements.lock`，前端见 `web/pnpm-lock.yaml`。
-
-在仓库根目录执行：
-
-```sh
-uv venv .venv --python 3.12
-uv pip install --python .venv/bin/python -r requirements.lock
-cd web
-pnpm install --frozen-lockfile
-pnpm run build
-cd ..
-mvn -f jvm/pom.xml -Dmaven.repo.local=.runtime/m2 package
-```
-
-前端构建只使用本地依赖，不引用 CDN。若机器没有 Node/pnpm，须先安装官方运行时；仓库不修改用户全局运行时或权限。
+本页以下仅供开发者选择部署外部链路，需另外准备 JDK 17+、Maven、Docker、Go 等对应工具。默认服务仅绑定回环地址，不能直接当公网部署模板。`showcase/` 为合成展示；`web/` 才连接实际 API。不要对已有环境重新播种、初始化网络或训练模型；先保存数据并核对在途作业。本用户版没有把这些外部链路当成本地验收通过项。
 
 ## Kafka Flink IPFS
 
