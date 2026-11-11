@@ -107,6 +107,12 @@ def main():
                 candidate = runtime / name
                 if not candidate.resolve().is_relative_to(runtime) or candidate.is_symlink() or not candidate.is_file() or hashlib.sha256(candidate.read_bytes()).hexdigest() != expected:
                     raise SystemExit('RUNTIME_DIGEST_MISMATCH')
+            minimum = manifest.get('minimumSystemVersion')
+            if not isinstance(minimum, str) or not re.fullmatch(r'\d+(?:\.\d+){1,2}', minimum):
+                raise SystemExit('RUNTIME_DEPLOYMENT_TARGET_INVALID')
+            info['LSMinimumSystemVersion'] = minimum
+            installed['minimumSystemVersion'] = minimum
+            (app / 'Contents/Info.plist').write_bytes(plistlib.dumps(info))
             shutil.copytree(runtime, resources / 'runtime', symlinks=True)
             for old_token in ['{{REPO}}', '{{NODE}}', '{{PYTHON}}']:
                 if old_token in json.dumps(installed):

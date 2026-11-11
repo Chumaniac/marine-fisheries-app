@@ -3,12 +3,37 @@ import argparse
 import hashlib
 import json
 import os
+import re
+import platform
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def declared_minimum(text):
+    # vtool also prints linker/tool versions. They are not OS deployment targets.
+    values = re.findall(r'^\s*minos\s+(\d+(?:\.\d+){1,2})\s*$', text, re.M)
+    values += re.findall(r'cmd LC_VERSION_MIN_MACOSX\s+cmdsize \d+\s+version (\d+(?:\.\d+){1,2})', text)
+    if not values:
+        raise ValueError('MACHO_DEPLOYMENT_TARGET_MISSING')
+    return max(values, key=lambda value: tuple(map(int, value.split('.'))))
+
+
+def minimum_macos(directory):
+    versions = {'native-window': '13.0'}
+    for path in directory.rglob('*'):
+        if not path.is_file() or path.is_symlink():
+            continue
+        with path.open('rb') as stream:
+            magic = stream.read(4)
+        if magic not in {b'\xcf\xfa\xed\xfe', b'\xfe\xed\xfa\xcf', b'\xca\xfe\xba\xbe', b'\xbe\xba\xfe\xca'}:
+            continue
+        output = subprocess.check_output(['xcrun', 'vtool', '-show-build', str(path)], text=True, timeout=15)
+        versions[str(path.relative_to(directory))] = declared_minimum(output)
+    return max(versions.values(), key=lambda value: tuple(map(int, value.split('.')))), versions
 
 
 def main():
@@ -75,7 +100,7 @@ def main():
         if product == 'inkwise':
             binary = app / 'bin/inkwise-vision'
             binary.parent.mkdir()
-            subprocess.run(['xcrun', 'swiftc', '-O', str(ROOT / 'native/vision-ocr.swift'), '-o', str(binary)], check=True)
+            subprocess.run(['xcrun', 'swiftc', '-O', '-target', platform.machine() + '-apple-macosx13.0', str(ROOT / 'native/vision-ocr.swift'), '-o', str(binary)], check=True)
         (app / 'embedded-runtime.json').write_text(json.dumps({'schema': 'embedded-runtime/v1', 'product': product}) + '\n')
         files = {str(p.relative_to(app)): hashlib.sha256(p.read_bytes()).hexdigest()
                  for p in sorted(app.rglob('*')) if p.is_file()}
@@ -94,9 +119,10 @@ def main():
             raise SystemExit('EXTERNAL_RUNTIME_LINK: ' + str(p.relative_to(output)))
     manifest = {str(p.relative_to(output)): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in sorted(output.rglob('*')) if p.is_file() and not p.is_symlink()}
+    minimum, deployments = minimum_macos(output)
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     dirty = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).strip())
-    (output / 'runtime-manifest.json').write_text(json.dumps({'schema': 'runtime-files/v1', 'product': product, 'sourceCommit': revision, 'includesWorkingTreeChanges': dirty, 'files': manifest}, indent=2) + '\n')
+    (output / 'runtime-manifest.json').write_text(json.dumps({'schema': 'runtime-files/v1', 'product': product, 'sourceCommit': revision, 'includesWorkingTreeChanges': dirty, 'minimumSystemVersion': minimum, 'binaryDeploymentTargets': deployments, 'files': manifest}, indent=2) + '\n')
     print(json.dumps({'product': product, 'files': len(manifest), 'runtime': str(output)}))
 
 
