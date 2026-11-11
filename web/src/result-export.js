@@ -20,6 +20,17 @@ export function sourceExport(events, filters, scope) {
     rows,
   };
 }
+function cell(value) {
+  const text = String(value ?? "");
+  const literal = typeof value === "string" && (/^\s*[=+@-]/u.test(text) || /^[\t\r\n]/.test(text)) ? "'" + text : text;
+  return '"' + literal.replaceAll('"', '""') + '"';
+}
+export function geographyCsv(points) {
+  const headings = ["站点", "聚合经度", "聚合纬度", "观测数", "数据来源"];
+  const rows = points.map(p => [p.siteId, p.longitude, p.latitude, p.count,
+    p.dataSource === "synthetic" ? "合成" : p.dataSource === "field" ? "现场" : "未确认"]);
+  return "\uFEFF" + [headings, ...rows].map(row => row.map(cell).join(",")).join("\r\n");
+}
 export function sourceCsv(packet) {
   const fields = [
     "eventId",
@@ -28,12 +39,6 @@ export function sourceCsv(packet) {
     "deviceId",
     "imageAvailable",
   ];
-  const cell = (value) =>
-    '"' +
-    String(value ?? "")
-      .replace(/^[=+@\-\t\r]/, "'$&")
-      .replaceAll('"', '""') +
-    '"';
   return (
     "\ufeff" +
     [

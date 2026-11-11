@@ -64,3 +64,5 @@ macOS：~/Library/Application Support/MarineFisheries/workspace；其他系统�
 **能在海上直接使用网页版吗？** 网页提供合成样例。本机采集环境与配置见[运行说明](docs/local-runtime.md)，现场性能需要实际航次验证。
 
 [参与贡献](CONTRIBUTING.md)
+
+本机工作台的「下载当前地图 CSV」导出地图使用的聚合坐标、观测数和数据来源。切换筛选后需先刷新快照，未知的观测数留空。
