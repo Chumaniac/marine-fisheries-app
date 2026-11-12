@@ -8,7 +8,7 @@
     </title>
     <meta name="theme-color" content="#101e2b">
     <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="/style.css?v=31">
+    <link rel="stylesheet" href="/style.css?v=32">
   </head>
   <body>
     <a class="skip-link" href="#main-content">
@@ -63,7 +63,8 @@
           </div>
         </div>
       </div>
-      <section class="card" data-workspace="collection" hidden aria-labelledby="collection-title">
+      <details class="workspace-guide"><summary>这个工作台如何开始？</summary><p>给捕捞、加工与复核团队：把站点观测、工单来源、批次流转和验收回执关联起来，便于交接和追溯。先准备已启动的本机服务、授权组织以及站点/设备资料。</p><ol><li><strong>连接并看清范围</strong><p>先选择组织，点击“连接本地会话”。观测概览显示当前范围和数据状态，不把空数据当成零结果。</p><a href="#observation-overview">查看当前观测范围</a></li><li><strong>完成一份采集工单</strong><p>进入采集与录入，选择站点、设备和时段，再关联来源及观测/环境/渔获/批次记录。核对后结束工单。</p><a href="#collection-title">前往采集与录入</a></li><li><strong>复查回执再处置</strong><p>到验收与复核检查来源和收件。固定证据、提交存证、机构交接和同步重试分别确认，不由这份引导自动执行。</p><a href="#acceptance-workspace-title">前往验收与复核</a></li></ol></details>
+    <section class="card" data-workspace="collection" hidden aria-labelledby="collection-title">
         <h2 id="collection-title">采集工单</h2>
         <p class="hint">联网创建或打开工单，离线录入会保留待同步记录。</p>
         <div class="collection-toolbar"><label>已保存工单<select id="collection-saved"><option value="">选择工单</option></select></label><div class="actions"><button id="collection-open" type="button">打开工单</button><button id="collection-refresh" type="button">刷新工单</button><button id="collection-more" type="button" disabled>下一页工单</button><button id="collection-new" type="button">新建工单</button></div></div>
@@ -899,7 +900,7 @@
         </p>
       </details>
     </main>
-    <script src="/app.js?v=31" defer>
+    <script src="/app.js?v=32" defer>
     </script>
   </body>
 </html>
