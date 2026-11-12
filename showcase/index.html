@@ -18,6 +18,9 @@
     @media(max-width:850px){.grid{grid-template-columns:1fr}.hero-note{display:block}.hero-note strong{margin-bottom:4px}.hero-note span{display:block;margin-top:5px}.metrics{gap:10px}.metric{padding:15px}.metric .value{font-size:23px}.metric .unit{font-size:10px}.view-navigation{position:sticky;top:0;z-index:4;gap:0;justify-content:space-around;background:#f3f5f1}.view-navigation a{font-size:12px;padding:13px 12px}.hero h1{font-size:26px}.hero{margin-bottom:20px}.controls{gap:7px}header{gap:10px}header .brand small{font-size:8px}.topmeta{display:none}header a{font-size:10px;max-width:90px}.table-scroll table{font-size:11px}.table-scroll th,.table-scroll td{padding:10px 6px}button,select,input{font-size:14px;min-height:44px}.map-detail{font-size:11px}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
+
+.start-guide{margin:0 0 24px;padding:0 18px;border:1px solid var(--line);border-radius:7px;background:#fff}.start-guide>summary{padding:13px 0;font-size:13px;font-weight:550;color:#245665;cursor:pointer}.start-guide p{font-size:12px;line-height:1.8;color:#526a73;margin:7px 0 10px}.start-guide .guide-preparation{margin-top:0}.start-guide ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;padding-left:20px;margin:12px 0 18px}.start-guide li{min-width:0;font-size:12px}.start-guide a{display:inline-flex;align-items:center;min-height:40px;font-size:12px;color:#245665;text-underline-offset:3px}@media(max-width:850px){.start-guide ol{grid-template-columns:1fr;gap:14px}.start-guide>summary{font-size:12px}.start-guide a{min-height:44px}}
+
   </style>
 </head>
 <body>
@@ -25,9 +28,10 @@
 <header><img src="./marine.svg" width="36" height="36" alt=""><div class="brand">澜知 · 海洋渔业<small>MARINE FISHERIES INTELLIGENCE</small></div><div class="topmeta">海上观测 · 合成样例</div><a href="https://github.com/Chumaniac/marine-fisheries-app/blob/main/docs/technical-proposal.md">阅读完整方案 ↗</a></header>
 <main id="main">
   <section class="hero">
-    <div><h1>海上观测记录</h1><p class="intro">选择鱼种，查看观测值与预测区间。切换网络模式，再逐步查看批次存证状态。</p></div>
+    <div><h1>海上观测记录</h1><p class="intro">为海上采集与批次协作整理观测、来源和处理记录。这里先用固定合成场景，体验怎样读趋势、分出待复核样本，并看懂批次证据状态。</p></div>
     <aside class="hero-note"><strong>合成数据展示 · 尚未部署真实系统</strong><p>曲线、鱼种样本与交易状态均为模拟。92.3% 准确率等数字是方案目标，尚无真实实验结果。</p><span>载入后可离线操作。数据只在当前页面处理。</span></aside>
   </section>
+  <details class="start-guide"><summary>第一次查看：用一个鱼种走完三条线索</summary><p class="guide-preparation">适合采集、加工与数据复核人员了解流程。无需账号或设备；本页所有数值与状态都是合成演示。</p><ol><li><strong>先读观测趋势</strong><p>在上方选择鱼种，对照曲线和数据表。本页 CPUE 单位为 kg / 标准化作业小时；示意区间用于说明不确定性。</p><a href="#overview">打开观测与数据表</a></li><li><strong>看看哪些样本需复核</strong><p>调整置信阈值，观察合成样本如何进入人工队列；这不是完整的识别效果评测。</p><a href="#review">查看样本复核演示</a></li><li><strong>区分保存、提交与确认</strong><p>在批次页推进示意步骤，再试离线模式。按钮只切换演示状态，不上传原件或发送链上交易。</p><a href="#trace">查看批次证据演示</a></li></ol></details>
   <div class="toolbar"><div class="controls"><label class="control-label" for="species">观测对象</label><select id="species"><option value="0">目标鱼种 A · 合成</option><option value="1">目标鱼种 B · 合成</option><option value="2">目标鱼种 C · 合成</option></select></div><div class="controls" role="group" aria-label="模拟网络模式"><span class="control-label">网络模拟</span><button data-mode="online" aria-pressed="true">正常</button><button data-mode="weak" aria-pressed="false">弱网</button><button data-mode="offline" aria-pressed="false">离线</button></div></div>
   <div id="network-status" class="status" role="status"><strong>正常模式 · 模拟</strong>每 15 秒刷新为设计策略；此页面没有真实请求或自动刷新。</div>
   <nav class="view-navigation" aria-label="观测工作区"><a href="#overview" aria-current="page">观测总览</a><a href="#review">样本复核</a><a href="#trace">批次证据</a></nav><div id="overview" data-showcase="overview"><p id="observation-summary" class="observation-summary" role="status"></p><section class="metrics" aria-label="合成场景数据">
