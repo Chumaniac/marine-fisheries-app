@@ -46,7 +46,7 @@ class Reviews:
         if embedding is None:
             return {"reviewStatus": "embedding_unavailable"}
         identity = hashlib.sha256(data).hexdigest()
-        with self.store.connect() as db:
+        with self.objects.transaction(self.store.path), self.store.connect() as db:
             db.execute("BEGIN IMMEDIATE")
             old = db.execute(
                 "SELECT payload FROM reviews WHERE tenant=? AND id=?", (tenant, identity)
