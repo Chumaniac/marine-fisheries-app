@@ -9,12 +9,13 @@ import httpx
 from marine.edge import Outbox
 from marine.storage import canonical, digest, CAPACITIES
 from marine.evidence_store import EvidenceStore
+from marine.evidence_recovery import material_exists
 
 
 class CaptureJournal:
     def __init__(self, path):
         self.outbox = Outbox(path)
-        self.objects = EvidenceStore(Path(path).parent / (Path(path).stem + "-evidence"))
+        self.objects = EvidenceStore(Path(path).parent / (Path(path).stem + "-evidence"), require_existing_key=material_exists(self.outbox.path))
         with self.outbox.connect() as db:
             db.executescript("""
             CREATE TABLE IF NOT EXISTS device_sequence(device TEXT PRIMARY KEY,value INTEGER);
@@ -24,7 +25,7 @@ class CaptureJournal:
     def capture(self, event, image, review=False):
         if not image or len(image) > 256 * 1024:
             raise ValueError("Crop exceeds 256 KiB")
-        with self.outbox.connect() as db:
+        with self.objects.transaction(self.outbox.path), self.outbox.connect() as db:
             db.execute("BEGIN IMMEDIATE")
             count, total = db.execute(
                 "SELECT count(*),coalesce(sum(json_extract(manifest,'$.byteLength')),0) FROM captured"
@@ -286,28 +287,19 @@ def register_edge(app, store, identity, producer, ingest, EventBatch, validator)
                     ),
                 )
         if not old:
-            with store.connect() as db:
+            with app.state.evidence_store.transaction(store.path), store.connect() as db:
                 db.execute("BEGIN IMMEDIATE")
-                if (
-                    db.execute(
-                        "SELECT count(*) FROM edge_evidence WHERE tenant=?", (claims["tenant"],)
-                    ).fetchone()[0]
-                    >= CAPACITIES['edge_evidence']
-                ):
-                    raise HTTPException(429, "Edge evidence capacity reached")
-                manifest = app.state.evidence_store.put(
-                    image_bytes, "edge-capture", claims["tenant"]
-                )
-                db.execute(
-                    "INSERT OR IGNORE INTO edge_evidence VALUES(?,?,?,?,?)",
-                    (
-                        claims["tenant"],
-                        payload["data"]["evidenceId"],
-                        payload["deviceId"],
-                        canonical(manifest).decode(),
-                        fingerprint,
-                    ),
-                )
+                current = db.execute('SELECT hash,device FROM edge_evidence WHERE tenant=? AND id=?', (claims['tenant'],payload['data']['evidenceId'])).fetchone()
+                used = db.execute("SELECT id FROM events WHERE tenant=? AND json_extract(payload,'$.data.evidenceId')=? LIMIT 1", (claims['tenant'],payload['data']['evidenceId'])).fetchone()
+                if current:
+                    if current['hash'] != fingerprint or current['device'] != payload['deviceId'] or used and used['id'] != payload['eventId']:
+                        raise ValueError('IDEMPOTENCY_CONFLICT')
+                else:
+                    if db.execute('SELECT count(*) FROM edge_evidence WHERE tenant=?', (claims['tenant'],)).fetchone()[0] >= CAPACITIES['edge_evidence']:
+                        raise HTTPException(429, 'Edge evidence capacity reached')
+                    manifest = app.state.evidence_store.put(image_bytes, 'edge-capture', claims['tenant'])
+                    db.execute('INSERT INTO edge_evidence VALUES(?,?,?,?,?)', (claims['tenant'],payload['data']['evidenceId'],payload['deviceId'],canonical(manifest).decode(),fingerprint))
+
         if review:
             if app.state.classifier is None:
                 from marine.inference import Classifier
@@ -361,12 +353,44 @@ def register_edge(app, store, identity, producer, ingest, EventBatch, validator)
     def receipt(sample_id: str, claims=Depends(producer)):
         with store.connect() as db:
             row = db.execute(
-                "SELECT device,status,review_id FROM edge_admissions WHERE tenant=? AND id=?",
+                "SELECT device,status,review_id,evidence_id FROM edge_admissions WHERE tenant=? AND id=?",
                 (claims["tenant"], sample_id),
             ).fetchone()
         if not row or (claims["role"] == "device" and row["device"] != claims.get("deviceId")):
             raise HTTPException(404, "Sample not found")
-        return {"sampleId": sample_id, "status": row["status"], "reviewId": row["review_id"]}
+        with store.connect() as db:
+            event = db.execute('SELECT payload FROM events WHERE tenant=? AND id=?', (claims['tenant'],sample_id)).fetchone()
+            evidence = db.execute('SELECT 1 FROM edge_evidence WHERE tenant=? AND id=(SELECT evidence_id FROM edge_admissions WHERE tenant=? AND id=?)', (claims['tenant'],claims['tenant'],sample_id)).fetchone()
+            link = db.execute("SELECT l.status,l.review_id,l.event,CASE WHEN length(CAST(r.payload AS BLOB))<=262144 THEN CASE WHEN json_valid(r.payload) THEN json_extract(r.payload,'$.state') END END AS review_state FROM edge_review_links l LEFT JOIN reviews r ON r.tenant=l.tenant AND r.id=l.review_id WHERE l.tenant=? AND l.id=?", (claims["tenant"],sample_id)).fetchone()
+        def bound(raw):
+            try:
+                value = json.loads(raw)
+                return (value.get('deviceId') == row['device'] and value.get('tenantId') == claims['tenant']
+                        and value.get('data', {}).get('evidenceId') == row['evidence_id'])
+            except (ValueError, TypeError, AttributeError):
+                return False
+        status, phase, next_action = 'action_required', 'evidence_saved' if evidence else 'admitted', 'reconcile_original_request'
+        if event:
+            if bound(event['payload']) and evidence:
+                status, phase, next_action = 'published', 'event_committed', 'none'
+            else:
+                phase = 'evidence_missing' if bound(event['payload']) else 'event_binding_conflict'
+        elif link:
+            if not bound(link['event']):
+                phase = 'review_binding_conflict'
+            elif link['status'] == 'review_pending':
+                if link['review_state'] == 'queued':
+                    status, phase, next_action = 'review_pending', 'review_linked', 'await_human_review'
+                else:
+                    phase = 'reviewed_publication_pending' if link['review_state'] == 'reviewed' else 'review_missing'
+            elif link['status'] == 'review_rejected':
+                status, phase, next_action = 'review_rejected', 'review_rejected', 'none'
+            else:
+                phase = 'event_missing'
+        elif row['status'] == 'review_rejected':
+            status, phase, next_action = 'review_rejected', 'review_rejected', 'none'
+
+        return {"sampleId":sample_id,"status":status,"reviewId":link['review_id'] if link else row['review_id'],"phase":phase,"nextAction":next_action}
 
     @app.get("/v1/observations/{event_id}/evidence")
     def evidence(event_id: str, claims=Depends(identity)):

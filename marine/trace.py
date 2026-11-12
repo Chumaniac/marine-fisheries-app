@@ -12,6 +12,7 @@ from marine.storage import canonical, digest, CAPACITIES
 
 from marine.commands import Command as Command, CreateBatch, Transition
 from marine.evidence_store import EvidenceStore, MAX_EVIDENCE_BYTES
+from marine.evidence_recovery import material_exists
 from marine.lineage import register_lineage
 
 
@@ -19,7 +20,7 @@ def register_trace(app, store, identity, operator, folder):
     from marine.logistics import LedgerSync, enqueue, organization, register_logistics
 
     app.state.ledger = LedgerSync(store)
-    objects = EvidenceStore(folder)
+    objects = EvidenceStore(folder, require_existing_key=material_exists(store.path))
     endpoints = objects.endpoints()
     if endpoints and len(endpoints) < objects.required_replicas():
         raise ValueError("Replica policy exceeds configured nodes")
@@ -36,7 +37,7 @@ def register_trace(app, store, identity, operator, folder):
 
     def execute(tenant, request_id, payload, action):
         requesthash = digest(payload)
-        with store.connect() as db:
+        with objects.transaction(store.path), store.connect() as db:
             db.execute("BEGIN IMMEDIATE")
             old = db.execute(
                 "SELECT hash,payload FROM receipts WHERE tenant=? AND id=?", (tenant, request_id)
@@ -241,7 +242,7 @@ def register_trace(app, store, identity, operator, folder):
         if not data or len(data) > MAX_EVIDENCE_BYTES:
             raise HTTPException(413, "Evidence must be 1 to 256 KiB in this API")
         content_hash = hashlib.sha256(data).hexdigest()
-        with store.connect() as db:
+        with objects.transaction(store.path), store.connect() as db:
             db.execute("BEGIN IMMEDIATE")
             existing = db.execute(
                 "SELECT id,status,manifest FROM evidence WHERE tenant=? AND batch=? AND json_extract(manifest,'$.rawSha256')=?",

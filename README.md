@@ -73,3 +73,5 @@ macOS：~/Library/Application Support/MarineFisheries/workspace；其他系统�
 ## 工作区与窄屏操作
 
 在线展示分为观测总览、样本复核和批次证据，可用链接直接进入并保留当前场景。总览显示当前鱼种和时间范围。实际工作台保留五个独立工作区，窄屏以紧凑导航访问全部入口。
+
+本地文件/数据库部分提交、原密钥保全和只读核对见[证据恢复说明](docs/evidence-recovery.md)。未知结果不自动删除或重放链上操作。
