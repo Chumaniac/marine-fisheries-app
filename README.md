@@ -6,7 +6,13 @@
 
 整理渔业采集批次，追踪质量问题并回看观测记录。
 
-[在线试用](https://chumaniac.github.io/marine-fisheries-app/) · [桌面下载](https://github.com/Chumaniac/marine-fisheries-app/releases)
+**[打开海上观测样例 →](https://chumaniac.github.io/marine-fisheries-app/)** · [桌面下载](https://github.com/Chumaniac/marine-fisheries-app/releases)
+
+进入后，切换鱼种查看合成趋势，下载当前鱼种 CSV，再打开样本复核或批次证据。正常、弱网与离线按钮只切换演示状态，不提交真实交易。
+
+[![澜知海洋的合成观测、网络状态与批次复核入口](docs/preview/online.png)](https://chumaniac.github.io/marine-fisheries-app/)
+
+*固定合成观测与示意区间。点击截图进入公开体验。*
 
 公开页面使用合成序列演示正常、弱网和离线状态。可切换鱼种或推进存证步骤，图表随操作更新。
 
