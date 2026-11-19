@@ -6,7 +6,9 @@
 
 整理渔业采集批次，追踪质量问题并回看观测记录。
 
-**[打开海上观测样例 →](https://chumaniac.github.io/marine-fisheries-app/)** · [桌面下载](https://github.com/Chumaniac/marine-fisheries-app/releases)
+**[打开海上观测样例 →](https://chumaniac.github.io/marine-fisheries-app/)** · [当前浏览器包](https://github.com/Chumaniac/marine-fisheries-app/releases/tag/showcase-2026.11.16) · [桌面包（2026.11.11）](https://github.com/Chumaniac/marine-fisheries-app/releases/tag/user-2026.11.11-zh)
+
+浏览器包提供当前合成观测与验收说明样例；桌面包是独立的本机工作台发行，模型和外部服务的准备要求见对应说明。
 
 进入后，切换鱼种查看合成趋势，下载当前鱼种 CSV，再打开样本复核或批次证据。正常、弱网与离线按钮只切换演示状态，不提交真实交易。
 
