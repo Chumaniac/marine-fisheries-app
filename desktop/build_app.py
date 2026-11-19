@@ -9,8 +9,16 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def application_version():
+    value = tomllib.loads((ROOT / 'pyproject.toml').read_text())['project']['version']
+    if not isinstance(value, str) or not re.fullmatch(r'\d+\.\d+\.\d+', value):
+        raise SystemExit('APPLICATION_VERSION_INVALID')
+    return value
 
 def main():
     parser = argparse.ArgumentParser()
@@ -72,10 +80,11 @@ def main():
         binary = app / 'Contents/MacOS/Workspace'
         resources = app / 'Contents/Resources'
         binary.parent.mkdir(parents=True); resources.mkdir()
+        version = application_version()
         info = {'CFBundleIdentifier': config['identifier'], 'CFBundleName': config['name'],
                 'CFBundleDisplayName': config['name'], 'CFBundleExecutable': 'Workspace',
-                'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'AppIcon', 'CFBundleShortVersionString': '1.0.0',
-                'CFBundleVersion': '1', 'LSMinimumSystemVersion': '13.0',
+                'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'AppIcon', 'CFBundleShortVersionString': version,
+                'CFBundleVersion': version, 'LSMinimumSystemVersion': '13.0',
                 'NSHighResolutionCapable': True,
                 'NSAppTransportSecurity': {'NSAllowsLocalNetworking': True}}
         (app / 'Contents/Info.plist').write_bytes(plistlib.dumps(info))

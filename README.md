@@ -6,7 +6,7 @@
 
 整理渔业采集批次，追踪质量问题并回看观测记录。
 
-**[打开海上观测样例 →](https://chumaniac.github.io/marine-fisheries-app/)** · [当前浏览器包](https://github.com/Chumaniac/marine-fisheries-app/releases/tag/showcase-2026.11.16) · [桌面包（2026.11.11）](https://github.com/Chumaniac/marine-fisheries-app/releases/tag/user-2026.11.11-zh)
+**[打开海上观测样例 →](https://chumaniac.github.io/marine-fisheries-app/)** · [当前浏览器包](https://github.com/Chumaniac/marine-fisheries-app/releases/tag/showcase-2026.11.16) · [桌面包（2026.11.19）](https://github.com/Chumaniac/marine-fisheries-app/releases/tag/user-2026.11.19)
 
 浏览器包提供当前合成观测与验收说明样例；桌面包是独立的本机工作台发行，模型和外部服务的准备要求见对应说明。
 
@@ -85,3 +85,5 @@ macOS：~/Library/Application Support/MarineFisheries/workspace；其他系统�
 在线展示分为观测总览、样本复核和批次证据，可用链接直接进入并保留当前场景。总览显示当前鱼种和时间范围。实际工作台保留五个独立工作区，窄屏以紧凑导航访问全部入口。
 
 本地文件/数据库部分提交、原密钥保全和只读核对见[证据恢复说明](docs/evidence-recovery.md)。未知结果不自动删除或重放链上操作。
+
+历史 [2026.11.11 中文桌面包](https://github.com/Chumaniac/marine-fisheries-app/releases/tag/user-2026.11.11-zh) 保留原附件与下载地址。
