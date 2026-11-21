@@ -19,6 +19,9 @@
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
 
+.inspect{display:grid;grid-template-columns:auto minmax(120px,1fr);gap:8px 14px;align-items:center;padding:0 22px 18px;font-size:12px;color:var(--muted)}.inspect input{accent-color:var(--teal);width:100%;min-height:32px}.inspect output{grid-column:1/-1;color:var(--ink);font-variant-numeric:tabular-nums;min-height:20px}#trend{cursor:crosshair}
+.map [data-area]{cursor:pointer;transition:stroke 120ms ease}.map [data-area]:hover{stroke:#526a73}.map [data-area][aria-pressed=true]{stroke:#172f39;stroke-width:3}.map [data-area]:focus-visible{outline:3px solid #d98642;outline-offset:2px}.map .area-labels{pointer-events:none}
+@media(max-width:440px){.inspect{padding:0 16px 16px}}
 .start-guide{margin:0 0 24px;padding:0 18px;border:1px solid var(--line);border-radius:7px;background:#fff}.start-guide>summary{padding:13px 0;font-size:13px;font-weight:550;color:#245665;cursor:pointer}.start-guide p{font-size:12px;line-height:1.8;color:#526a73;margin:7px 0 10px}.start-guide .guide-preparation{margin-top:0}.start-guide ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;padding-left:20px;margin:12px 0 18px}.start-guide li{min-width:0;font-size:12px}.start-guide a{display:inline-flex;align-items:center;min-height:40px;font-size:12px;color:#245665;text-underline-offset:3px}@media(max-width:850px){.start-guide ol{grid-template-columns:1fr;gap:14px}.start-guide>summary{font-size:12px}.start-guide a{min-height:44px}}
 
   </style>
@@ -41,8 +44,8 @@
     <div class="metric"><div class="label">数据状态</div><div class="value" id="freshness">模拟在线</div><div class="caption" id="freshness-detail">固定场景：2026-10-09 10:00 +08:00</div></div>
   </section>
   <div class="grid">
-    <section class="panel"><div class="panel-head"><div><h2>渔情趋势与不确定性</h2><div class="caption">CPUE · kg / 标准化作业小时</div></div><span class="tag">SYNTHETIC</span></div><div class="chart-wrap"><svg id="trend" viewBox="0 0 680 300" role="img" aria-label="合成 CPUE 历史与未来预测曲线"><title>合成 CPUE 曲线，无真实业务含义</title></svg></div><div class="legend"><span><i class="swatch"></i>合成历史</span><span><i class="swatch pred"></i>合成预测</span><span><i class="swatch band"></i>示意预测区间</span></div><div class="panel-body"><button type="button" id="export-trend">下载当前鱼种 CSV</button><details><summary>查看趋势数据表</summary><div class="table-scroll"><table><caption class="sr-only">曲线对应的合成值</caption><thead><tr><th>相对时间</th><th>CPUE</th><th>类型</th><th>区间下限</th><th>区间上限</th></tr></thead><tbody id="chart-data"></tbody></table></div></details></div></section>
-    <section class="panel"><div class="panel-head"><div><h2>海区观测分布</h2><div class="caption">抽象海区网格 · 不对应真实坐标</div></div><span class="tag">DEMO AREA</span></div><div class="map"><svg viewBox="0 0 460 285" role="img" aria-label="合成海区网格 A 到 F 的观测分布"><title>非真实地理信息，A 海区为选定演示区域</title><defs><pattern id="mapGrid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#d3e1dd" stroke-width=".7"/></pattern></defs><rect width="460" height="285" fill="url(#mapGrid)"/><path d="M0 0H126Q85 56 134 94T78 174T52 285H0Z" fill="#d4dfd3"/><g fill="none" stroke="#b5cecb"><path d="M165 -20Q101 64 186 112T132 305"/><path d="M195 -20Q131 64 216 112T162 305"/><path d="M225 -20Q161 64 246 112T192 305"/><path d="M255 -20Q191 64 276 112T222 305"/><path d="M285 -20Q221 64 306 112T252 305"/></g><g stroke="white" stroke-width="2"><rect x="220" y="72" width="56" height="48" rx="4" fill="#087f78"/><rect x="281" y="72" width="56" height="48" rx="4" fill="#84bcb0"/><rect x="342" y="72" width="56" height="48" rx="4" fill="#bad9c6"/><rect x="220" y="125" width="56" height="48" rx="4" fill="#a6cdbd"/><rect x="281" y="125" width="56" height="48" rx="4" fill="#4e9d94"/><rect x="342" y="125" width="56" height="48" rx="4" fill="#d1e2d6"/></g><g font-size="13" text-anchor="middle" font-family="sans-serif"><text x="248" y="102" fill="white">A</text><text x="309" y="102" fill="#173f3b">B</text><text x="370" y="102" fill="#173f3b">C</text><text x="248" y="155" fill="#173f3b">D</text><text x="309" y="155" fill="#173f3b">E</text><text x="370" y="155" fill="#173f3b">F</text></g><text x="34" y="60" font-size="12" fill="#526a63">抽象陆地</text><text x="220" y="220" font-size="11" fill="#3f6661">深色表示较高的合成观测强度</text><text id="map-values" x="220" y="240" font-size="10" fill="#526a73">A 128 · B 82 · C 46 · D 61 · E 104 · F 32</text></svg></div><div class="map-detail"><span>选定区域 <strong>A</strong> · 仅作结构示意</span><span>生产环境按权限降低地理精度</span></div></section>
+    <section class="panel"><div class="panel-head"><div><h2>渔情趋势与不确定性</h2><div class="caption">CPUE · kg / 标准化作业小时</div></div><span class="tag">SYNTHETIC</span></div><div class="chart-wrap"><svg id="trend" viewBox="0 0 680 300" role="img" aria-label="合成 CPUE 历史与未来预测曲线"><title>合成 CPUE 曲线，无真实业务含义</title></svg></div><div class="legend"><span><i class="swatch"></i>合成历史</span><span><i class="swatch pred"></i>合成预测</span><span><i class="swatch band"></i>示意预测区间</span></div><div class="inspect"><label for="inspect">查看时间点</label><input id="inspect" type="range" min="0" max="10" step="1" value="6"><output id="inspect-readout" for="inspect" role="status"></output></div><div class="panel-body"><button type="button" id="export-trend">下载当前鱼种 CSV</button><details><summary>查看趋势数据表</summary><div class="table-scroll"><table><caption class="sr-only">曲线对应的合成值</caption><thead><tr><th>相对时间</th><th>CPUE</th><th>类型</th><th>区间下限</th><th>区间上限</th></tr></thead><tbody id="chart-data"></tbody></table></div></details></div></section>
+    <section class="panel"><div class="panel-head"><div><h2>海区观测分布</h2><div class="caption">抽象海区网格 · 不对应真实坐标</div></div><span class="tag">DEMO AREA</span></div><div class="map"><svg viewBox="0 0 460 285" role="img" aria-label="合成海区网格 A 到 F 的观测分布"><title>非真实地理信息。点击海区，或聚焦后按回车选择</title><defs><pattern id="mapGrid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#d3e1dd" stroke-width=".7"/></pattern></defs><rect width="460" height="285" fill="url(#mapGrid)"/><path d="M0 0H126Q85 56 134 94T78 174T52 285H0Z" fill="#d4dfd3"/><g fill="none" stroke="#b5cecb"><path d="M165 -20Q101 64 186 112T132 305"/><path d="M195 -20Q131 64 216 112T162 305"/><path d="M225 -20Q161 64 246 112T192 305"/><path d="M255 -20Q191 64 276 112T222 305"/><path d="M285 -20Q221 64 306 112T252 305"/></g><g stroke="white" stroke-width="2"><rect x="220" y="72" width="56" height="48" rx="4" fill="#087f78" data-area="A" role="button" tabindex="0" aria-pressed="true" aria-label="海区 A"/><rect x="281" y="72" width="56" height="48" rx="4" fill="#84bcb0" data-area="B" role="button" tabindex="0" aria-pressed="false" aria-label="海区 B"/><rect x="342" y="72" width="56" height="48" rx="4" fill="#bad9c6" data-area="C" role="button" tabindex="0" aria-pressed="false" aria-label="海区 C"/><rect x="220" y="125" width="56" height="48" rx="4" fill="#a6cdbd" data-area="D" role="button" tabindex="0" aria-pressed="false" aria-label="海区 D"/><rect x="281" y="125" width="56" height="48" rx="4" fill="#4e9d94" data-area="E" role="button" tabindex="0" aria-pressed="false" aria-label="海区 E"/><rect x="342" y="125" width="56" height="48" rx="4" fill="#d1e2d6" data-area="F" role="button" tabindex="0" aria-pressed="false" aria-label="海区 F"/></g><g font-size="13" text-anchor="middle" font-family="sans-serif" class="area-labels"><text x="248" y="102" fill="white">A</text><text x="309" y="102" fill="#173f3b">B</text><text x="370" y="102" fill="#173f3b">C</text><text x="248" y="155" fill="#173f3b">D</text><text x="309" y="155" fill="#173f3b">E</text><text x="370" y="155" fill="#173f3b">F</text></g><text x="34" y="60" font-size="12" fill="#526a63">抽象陆地</text><text x="220" y="220" font-size="11" fill="#3f6661">深色表示较高的合成观测强度</text><text id="map-values" x="220" y="240" font-size="10" fill="#526a73">A 128 · B 82 · C 46 · D 61 · E 104 · F 32</text></svg></div><div class="map-detail"><span id="area-detail" role="status"></span><span>仅作结构示意 · 生产环境按权限降低地理精度</span></div></section>
   </div>
   </div>
   <div class="two">
@@ -75,6 +78,8 @@
     markup+=`<line x1="${x(6)}" y1="${top}" x2="${x(6)}" y2="${bottom}" stroke="#99aaa6" stroke-dasharray="4 5"/><text x="${x(6)+8}" y="20" fill="#647970" font-size="10">预测起点</text>`;
     markup+=`<path d="${path(item.history,0)}" fill="none" stroke="#087f78" stroke-width="3"/><path d="${path(item.forecast,6)}" fill="none" stroke="#b76529" stroke-width="3" stroke-dasharray="6 5"/>`;
     item.history.forEach((v,i)=>{markup+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="#087f78"/>`;});
+    item.forecast.slice(1).forEach((v,i)=>{markup+=`<circle cx="${x(i+7)}" cy="${y(v)}" r="3.5" fill="#b76529"/>`;});
+    markup+=`<line id="trend-cursor" y1="${top}" y2="${bottom}" stroke="#172f39" stroke-opacity=".45" stroke-width="1.5"/><circle id="trend-marker" r="6" fill="none" stroke="#172f39" stroke-width="2"/>`;
     [[0,'−90 min'],[3,'−45 min'],[6,'现在'],[8,'+30 min'],[10,'+60 min']].forEach(([i,label])=>{markup+=`<text x="${x(i)}" y="270" text-anchor="middle" font-size="11" fill="#526a73">${label}</text>`;});
     svg.innerHTML=markup;
     byId('point').innerHTML=`${item.point} <span class="unit">kg / 标准作业小时</span>`;
@@ -83,6 +88,7 @@
     byId('map-values').textContent=['A','B','C','D','E','F'].map((name,i)=>`${name} ${Math.round(item.count*[1,.64,.36,.48,.81,.25][i])}`).join(' · ');
     const rows=item.history.map((v,i)=>[(i-6)*15,v,'合成历史','','']);
     item.forecast.slice(1).forEach((v,i)=>rows.push([(i+1)*15,v,'合成预测',low[i+1].toFixed(1),high[i+1].toFixed(1)]));
+    currentRows=rows;renderInspect();renderArea();
     byId('chart-data').replaceChildren(...rows.map(row=>{
       const tr=document.createElement('tr');
       row.forEach((value,column)=>{
@@ -102,6 +108,34 @@
       setTimeout(()=>URL.revokeObjectURL(url),1000);
     };
   }
+  // The scrubber, a click on the chart and the table all describe the same eleven points.
+  let currentRows=[];
+  function renderInspect(){
+    const index=Number(byId('inspect').value),row=currentRows[index];if(!row)return;
+    const [minute,value,kind,low,high]=row,when=minute===0?'现在':(minute>0?'+':'−')+Math.abs(minute)+' min';
+    byId('inspect-readout').textContent=`${when} · ${kind} · CPUE ${value}`+(low===''?'':` · 示意区间 ${low}–${high}`);
+    const cx=53+(639-53)*index/10,cy=241-value/24*(241-28),cursor=byId('trend-cursor'),marker=byId('trend-marker');
+    if(cursor){cursor.setAttribute('x1',cx);cursor.setAttribute('x2',cx);}
+    if(marker){marker.setAttribute('cx',cx);marker.setAttribute('cy',cy);}
+  }
+  byId('inspect').addEventListener('input',renderInspect);
+  byId('trend').addEventListener('click',event=>{
+    const box=byId('trend').getBoundingClientRect(),position=(event.clientX-box.left)/box.width*680;
+    byId('inspect').value=String(Math.max(0,Math.min(10,Math.round((position-53)/(639-53)*10))));renderInspect();
+  });
+  // Sea areas share the counts shown under the grid; selecting one never moves real data.
+  const areaShare={A:1,B:.64,C:.36,D:.48,E:.81,F:.25};let area='A';
+  function renderArea(){
+    const item=series[Number(byId('species').value)],counts=Object.fromEntries(Object.entries(areaShare).map(([name,share])=>[name,Math.round(item.count*share)]));
+    const total=Object.values(counts).reduce((sum,count)=>sum+count,0);
+    document.querySelectorAll('[data-area]').forEach(cell=>cell.setAttribute('aria-pressed',String(cell.dataset.area===area)));
+    byId('area-detail').textContent=`选定区域 ${area} · 合成观测 ${counts[area]} 条 / 30 分钟 · 占六区合计 ${Math.round(counts[area]/total*100)}%`;
+  }
+  document.querySelectorAll('[data-area]').forEach(cell=>{
+    const choose=()=>{area=cell.dataset.area;renderArea();};
+    cell.addEventListener('click',choose);
+    cell.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose();}});
+  });
   byId('species').addEventListener('change',event=>drawChart(Number(event.target.value)));
   let mode='online', traceStep=0;
   const states={online:{label:'正常模式 · 模拟',text:'每 15 秒刷新为设计策略；此页面没有真实请求或自动刷新。',freshness:'模拟在线',detail:'固定场景：2026-10-09 10:00 +08:00'},weak:{label:'弱网模式 · 模拟',text:'设计策略：60 秒刷新、请求合并、缩略图暂停。页面仅演示提示，不实施网络节流。',freshness:'模拟弱网',detail:'保留概要与趋势，生产服务需报告实际数据年龄'},offline:{label:'离线模式 · 模拟',text:'仅显示固定合成快照。预测标为失效；待同步数据保留，恢复后按幂等键补传。',freshness:'快照已失效',detail:'最后快照：2026-10-09 10:00 +08:00 · 不可用于新决策'}};
