@@ -579,3 +579,22 @@ def test_window_index_opens_existing_store_with_an_unscopable_legacy_window(clie
     assert result.json()["coverage"]["totalStreamWindows"] == 0
     with store.connect() as db:
         assert db.execute("SELECT payload FROM windows WHERE id='legacy'").fetchone()[0] == "{"
+
+
+def test_dashboard_counts_selected_site_outside_the_visible_site_page(tmp_path):
+    import json
+    from marine.storage import Store
+
+    store = Store(tmp_path / "sites.sqlite")
+    def observation(site):
+        return json.dumps({"siteId": site, "eventType": "fish.observation",
+                           "data": {"speciesId": "cod"}, "occurredAt": "2026-01-01T12:00:00Z"})
+    with store.connect() as db:
+        db.executemany("INSERT INTO events VALUES (?,?,?,?,?)", [
+            ("sea", str(i), observation(f"site-{i:04d}"), "test", i) for i in range(1002)
+        ])
+    metrics = store.dashboard_metrics("sea", "site-1001", "cod", 0)
+    assert metrics["observationCount"] == 1
+    assert len(metrics["siteCounts"]) == 1000 and not metrics["siteCountsComplete"]
+    assert "site-1001" not in metrics["siteCounts"]
+    assert store.dashboard_metrics("sea", "absent", "cod", 0)["observationCount"] == 0

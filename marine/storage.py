@@ -167,7 +167,17 @@ class Store:
         with self.connect() as db:
             # One read snapshot keeps counters and series consistent during concurrent ingestion.
             db.execute("BEGIN")
-            count = db.execute("SELECT count(*) FROM events WHERE " + fish, args).fetchone()[0]
+            sites = db.execute(
+                f"SELECT json_extract(payload,'$.siteId') AS site,count(*) AS count FROM events WHERE tenant=? AND {DASHBOARD_FISH} AND json_extract(payload,'$.data.speciesId')=? GROUP BY site ORDER BY site LIMIT 1001",
+                (tenant, species),
+            ).fetchall()
+            site_counts = dict(sites[:1000])
+            count = site_counts.get(site)
+            if count is None:
+                # Absence is conclusive only when every site fits in the response.
+                count = 0 if len(sites) <= 1000 else db.execute(
+                    "SELECT count(*) FROM events WHERE " + fish, args
+                ).fetchone()[0]
             tracks = db.execute(
                 "SELECT count(DISTINCT json_extract(payload,'$.data.trackId')) FROM events WHERE "
                 + fish
@@ -188,17 +198,13 @@ class Store:
                 "SELECT payload FROM events WHERE tenant=? AND json_extract(payload,'$.siteId')=? AND json_extract(payload,'$.eventType')='environment.reading' ORDER BY unixepoch(json_extract(payload,'$.occurredAt')) DESC,id DESC LIMIT 1",
                 (tenant, site),
             ).fetchone()
-            sites = db.execute(
-                f"SELECT json_extract(payload,'$.siteId') AS site,count(*) AS count FROM events WHERE tenant=? AND {DASHBOARD_FISH} AND json_extract(payload,'$.data.speciesId')=? GROUP BY site ORDER BY site LIMIT 1001",
-                (tenant, species),
-            ).fetchall()
         return {
             "observationCount": count,
             "trackCount": tracks,
             "series": dict(series),
             "latest": latest or 0,
             "environment": json.loads(environment[0])["data"] if environment else None,
-            "siteCounts": dict(sites[:1000]),
+            "siteCounts": site_counts,
             "siteCountsComplete": len(sites) <= 1000,
         }
 
