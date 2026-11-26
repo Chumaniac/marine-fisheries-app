@@ -481,24 +481,22 @@ def create_app(data_dir=None, mode=None):
         env = metrics["environment"]
         if env and env["sensorQuality"] != "valid":
             env = None
-        with store.connect() as db:
-            windows = [
-                json.loads(row["payload"])
-                for row in db.execute(
-                    "SELECT payload FROM windows WHERE tenant=? "
-                    "AND json_extract(payload,'$.siteId')=? "
-                    "AND json_extract(payload,'$.speciesId')=? ORDER BY json_extract(payload,'$.windowStart') DESC,id DESC LIMIT 1000",
-                    (claims["tenant"], siteId, speciesId),
-                )
-            ]
         stream_configured = bool(os.getenv("KAFKA_BOOTSTRAP"))
         model = store.model(claims["tenant"], siteId, speciesId)
         prediction = app.state.forecasts.latest(claims["tenant"], siteId, speciesId)
         counts = Counter(metrics["series"])
         latest = metrics["latest"]
         with store.connect() as db:
-            window_scope = "tenant=? AND json_extract(payload,'$.siteId')=? AND json_extract(payload,'$.speciesId')=?"
+            window_scope = "json_valid(payload) AND tenant=? AND json_extract(payload,'$.siteId')=? AND json_extract(payload,'$.speciesId')=?"
             args = (claims["tenant"], siteId, speciesId)
+            # Heatmap rows, trend and coverage describe the same committed window set.
+            db.execute("BEGIN")
+            windows = db.execute(
+                "SELECT json_extract(payload,'$.windowStart') AS windowStart, "
+                "json_extract(payload,'$.observationCount') AS observationCount "
+                "FROM windows WHERE " + window_scope + " ORDER BY windowStart DESC,id DESC LIMIT 480",
+                args,
+            ).fetchall()
             window_total = db.execute(
                 "SELECT count(*) FROM windows WHERE " + window_scope, args
             ).fetchone()[0]
@@ -597,13 +595,13 @@ def create_app(data_dir=None, mode=None):
             },
             "heatmap": [
                 {
-                    "siteId": w["siteId"],
+                    "siteId": siteId,
                     "minute": datetime.fromtimestamp(
                         w["windowStart"] / 1000, timezone.utc
                     ).isoformat()[:16],
                     "count": w["observationCount"],
                 }
-                for w in sorted(windows, key=lambda w: w["windowStart"])[-480:]
+                for w in reversed(windows)
             ],
             "siteLocations": [
                 {

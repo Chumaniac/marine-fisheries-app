@@ -62,6 +62,13 @@ class Store:
                 "ON events(tenant,json_extract(payload,'$.data.speciesId'),json_extract(payload,'$.siteId')) "
                 f"WHERE {DASHBOARD_FISH}"
             )
+            # Window keys match dashboard filtering and seek order. Legacy malformed
+            # records have no identifiable site/species and stay outside this index.
+            db.execute(
+                "CREATE INDEX IF NOT EXISTS windows_dashboard_scope_time_v1 "
+                "ON windows(tenant,json_extract(payload,'$.siteId'),json_extract(payload,'$.speciesId'),"
+                "json_extract(payload,'$.windowStart') DESC,id DESC) WHERE json_valid(payload)"
+            )
             # Add metadata without replacing legacy tables or changing payloads.
             db.execute("BEGIN IMMEDIATE")
             if "error_code" not in {row["name"] for row in db.execute("PRAGMA table_info(outbox)")}:

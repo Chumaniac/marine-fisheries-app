@@ -550,3 +550,32 @@ def test_dashboard_remains_consistent_across_a_concurrent_commit(tmp_path, monke
     assert commits == [True]
     assert first['observationCount'] == sum(first['series'].values()) == first['siteCounts']['one'] == 1
     assert store.dashboard_metrics('tenant', 'one', 'fish', 0)['observationCount'] == 2
+
+
+def test_dashboard_reports_the_windows_actually_displayed(client):
+    store = client.app.state.store
+    def row(i):
+        payload = {"siteId": "site", "speciesId": "saithe", "windowStart": i * 60000, "observationCount": i}
+        return "demo", str(i), json.dumps(payload), i
+    with store.connect() as db:
+        db.executemany("INSERT INTO windows VALUES(?,?,?,?)", (row(i) for i in range(1005)))
+    response = client.get("/v1/dashboard", params={"siteId": "site", "speciesId": "saithe"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["coverage"]["totalStreamWindows"] == data["streamWindows"] == 1005
+    assert data["coverage"]["displayedStreamWindows"] == len(data["heatmap"]) == 480
+    assert [item["count"] for item in data["heatmap"]] == list(range(525, 1005))
+
+
+def test_window_index_opens_existing_store_with_an_unscopable_legacy_window(client):
+    from marine.storage import Store
+    store = client.app.state.store
+    with store.connect() as db:
+        db.execute("DROP INDEX windows_dashboard_scope_time_v1")
+        db.execute("INSERT INTO windows VALUES(?,?,?,?)", ("demo", "legacy", "{", 0))
+    Store(store.path)
+    result = client.get("/v1/dashboard")
+    assert result.status_code == 200
+    assert result.json()["coverage"]["totalStreamWindows"] == 0
+    with store.connect() as db:
+        assert db.execute("SELECT payload FROM windows WHERE id='legacy'").fetchone()[0] == "{"
