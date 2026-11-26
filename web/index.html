@@ -8,7 +8,7 @@
     </title>
     <meta name="theme-color" content="#101e2b">
     <link rel="preload" href="/fonts/inter-latin-variable.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="/style.css?v=32">
+    <link rel="stylesheet" href="/style.css?v=33">
   </head>
   <body>
     <a class="skip-link" href="#main-content">
@@ -39,8 +39,9 @@
           </p>
         </div>
         <div class="actions session-actions">
+          <p id="session-account" class="session-account" role="status">当前会话 · 未连接</p>
           <label>
-            本地演示机构
+            选择要连接的机构
             <select id="organization" name="organization">
               <option value="Org1MSP">
                 捕捞机构
@@ -51,13 +52,13 @@
             </select>
           </label>
           <div class="actions session-buttons">
-          <button id="connect">
+          <button id="connect" disabled>
             连接本地会话
           </button>
           <button id="refresh">
             刷新数据
           </button>
-          <button id="logout">
+          <button id="logout" disabled>
             退出并清空缓存
           </button>
           </div>
@@ -900,7 +901,7 @@
         </p>
       </details>
     </main>
-    <script src="/app.js?v=32" defer>
+    <script src="/app.js?v=33" defer>
     </script>
   </body>
 </html>
