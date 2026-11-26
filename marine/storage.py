@@ -22,6 +22,9 @@ QUALITY_SITE_EXPRESSION = (
     "THEN CASE WHEN json_valid(payload) THEN json_extract(payload,'$.siteId') END END"
 )
 
+# Only fish observations enter this index. Guard parsing while upgrading legacy stores.
+DASHBOARD_FISH = "CASE WHEN json_valid(payload) THEN json_extract(payload,'$.eventType') END='fish.observation'"
+
 
 def canonical(value):
     return jcs.canonicalize(value)
@@ -53,6 +56,11 @@ class Store:
             db.execute(
                 "CREATE INDEX IF NOT EXISTS events_quality_site_time_v1 "
                 f"ON events(tenant,({QUALITY_SITE_EXPRESSION}),created DESC,id DESC)"
+            )
+            db.execute(
+                "CREATE INDEX IF NOT EXISTS events_dashboard_fish_v1 "
+                "ON events(tenant,json_extract(payload,'$.data.speciesId'),json_extract(payload,'$.siteId')) "
+                f"WHERE {DASHBOARD_FISH}"
             )
             # Add metadata without replacing legacy tables or changing payloads.
             db.execute("BEGIN IMMEDIATE")
@@ -147,9 +155,11 @@ class Store:
 
     def dashboard_metrics(self, tenant, site, species, clock):
         """Aggregate counters in SQL; cap display buckets without truncating totals."""
-        fish = "tenant=? AND json_extract(payload,'$.siteId')=? AND json_extract(payload,'$.eventType')='fish.observation' AND json_extract(payload,'$.data.speciesId')=?"
+        fish = f"tenant=? AND json_extract(payload,'$.siteId')=? AND {DASHBOARD_FISH} AND json_extract(payload,'$.data.speciesId')=?"
         args = (tenant, site, species)
         with self.connect() as db:
+            # One read snapshot keeps counters and series consistent during concurrent ingestion.
+            db.execute("BEGIN")
             count = db.execute("SELECT count(*) FROM events WHERE " + fish, args).fetchone()[0]
             tracks = db.execute(
                 "SELECT count(DISTINCT json_extract(payload,'$.data.trackId')) FROM events WHERE "
@@ -172,7 +182,7 @@ class Store:
                 (tenant, site),
             ).fetchone()
             sites = db.execute(
-                "SELECT json_extract(payload,'$.siteId') AS site,count(*) AS count FROM events WHERE tenant=? AND json_extract(payload,'$.eventType')='fish.observation' AND json_extract(payload,'$.data.speciesId')=? GROUP BY site ORDER BY site LIMIT 1001",
+                f"SELECT json_extract(payload,'$.siteId') AS site,count(*) AS count FROM events WHERE tenant=? AND {DASHBOARD_FISH} AND json_extract(payload,'$.data.speciesId')=? GROUP BY site ORDER BY site LIMIT 1001",
                 (tenant, species),
             ).fetchall()
         return {

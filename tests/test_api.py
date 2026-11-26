@@ -518,3 +518,35 @@ def test_blank_operator_retry_note_is_rejected_without_mutating_request(client):
     with client.app.state.store.connect() as db:
         row = db.execute("SELECT * FROM outbox WHERE id='blank-note'").fetchone()
         assert row["status"] == "action_required" and row["payload"] == "original payload"
+
+
+def test_dashboard_remains_consistent_across_a_concurrent_commit(tmp_path, monkeypatch):
+    from contextlib import contextmanager
+    import json
+    from marine.storage import Store
+
+    store = Store(tmp_path / 'snapshot.sqlite')
+    connect = store.connect
+    event = json.dumps({'siteId': 'one', 'eventType': 'fish.observation',
+                        'data': {'speciesId': 'fish'}, 'occurredAt': '2026-01-01T12:00:00Z'})
+    def append_event(event_id):
+        with connect() as writer:
+            writer.execute('INSERT INTO events VALUES (?,?,?,?,?)', ('tenant', event_id, event, 'test', 1))
+
+    append_event('first')
+    commits = []
+    @contextmanager
+    def interleaved_reader():
+        with connect() as reader:
+            def after_initial_count(statement):
+                if not commits and 'count(DISTINCT' in statement:
+                    append_event('second')
+                    commits.append(True)
+            reader.set_trace_callback(after_initial_count)
+            yield reader
+
+    monkeypatch.setattr(store, 'connect', interleaved_reader)
+    first = store.dashboard_metrics('tenant', 'one', 'fish', 0)
+    assert commits == [True]
+    assert first['observationCount'] == sum(first['series'].values()) == first['siteCounts']['one'] == 1
+    assert store.dashboard_metrics('tenant', 'one', 'fish', 0)['observationCount'] == 2
